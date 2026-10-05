@@ -1,0 +1,124 @@
+/* =========================================================
+   WS1 Code-Along · Box Model, Positioning & Responsive Design
+   Starter stylesheet. Text, colors, and backgrounds from
+   Week 7 are already done. We add everything else together.
+   ========================================================= */
+
+/* ---------- Already done: text & colors (Week 7 recap) ---------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Calibri, Arial, sans-serif;
+  line-height: 1.6;
+  color: #222222;
+  background-color: #f5f7fa;
+}
+
+h1,
+h2,
+h3 {
+  font-family: Georgia, serif;
+  color: #0b3d5c;
+}
+
+a {
+  color: #1c7293;
+}
+
+.site-header {
+  background-color: #0b3d5c;
+}
+
+.site-header .logo {
+  color: #ffffff;
+  margin: 0;
+}
+
+.nav a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.site-footer {
+  text-align: center;
+  color: #5b6b78;
+}
+
+/* ---------- STEP 1 · The box model ---------- */
+/* TODO 1a: give .card a white background, padding, a border, and a margin */
+.card {
+  background-color: chocolate;
+  padding: 20px;
+  border: 2px solid #222222;
+  margin: 24px 5px;
+}
+
+/* TODO 1b: center the page with .container (max-width + margin: 0 auto)  */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* TODO 1c: add box-sizing: border-box to every element                   */
+
+/* ---------- STEP 2 · A row navigation bar ---------- */
+/* TODO 2: make .nav a links inline-block with padding                     */
+
+.nav a {
+  display: inline-block;
+  padding: 10px 20px;
+}
+
+.nav a:hover {
+  color: #1c7293;
+}
+
+/* ---------- STEP 3 · Positioning ---------- */
+/* TODO 3a: relative  – lift a card slightly on hover                      */
+.project {
+  position: relative;
+}
+
+.project:hover {
+  top: -4px;
+  box-shadow: 6px 14px #1c7293;
+}
+
+/* TODO 3b: absolute  – pin the NEW badge to the card's top-right corner   */
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* TODO 3c: fixed     – keep the "Top" button in the window's corner       */
+.to-top {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  font-size: 80px;
+  text-decoration: none;
+  color: red;
+}
+
+/* ---------- STEP 4 · Responsive design ---------- */
+/* TODO 4a: put the three project cards in a row                           */
+.project {
+  display: inline-block;
+}
+
+.card .project {
+  width: 150px;
+}
+/* TODO 4b: add a @media query so they stack on screens 600px and narrower */
+@media (max-width: 600px) {
+  .project {
+    flex-direction: column;
+  }
+}
