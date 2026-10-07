@@ -10,7 +10,7 @@
 }
 
 body {
-  margin: 0;
+  margin: 20px;
   font-family: Calibri, Arial, sans-serif;
   line-height: 1.6;
   color: #222222;
@@ -47,78 +47,67 @@ a {
   color: #5b6b78;
 }
 
-/* ---------- STEP 1 · The box model ---------- */
-/* TODO 1a: give .card a white background, padding, a border, and a margin */
-.card {
-  background-color: chocolate;
-  padding: 20px;
-  border: 2px solid #222222;
-  margin: 24px 5px;
-}
-
-/* TODO 1b: center the page with .container (max-width + margin: 0 auto)  */
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* TODO 1c: add box-sizing: border-box to every element                   */
-
-/* ---------- STEP 2 · A row navigation bar ---------- */
-/* TODO 2: make .nav a links inline-block with padding                     */
-
-.nav a {
-  display: inline-block;
-  padding: 10px 20px;
-}
-
-.nav a:hover {
-  color: #1c7293;
-}
-
-/* ---------- STEP 3 · Positioning ---------- */
-/* TODO 3a: relative  – lift a card slightly on hover                      */
 .project {
   position: relative;
 }
-
-.project:hover {
-  top: -4px;
-  box-shadow: 6px 14px #1c7293;
+/* ---------- STEP 1 · The box model ---------- */
+/* TODO 1a: give .card a white background, padding, a border, and a margin */
+.card {
+  background-color: #ffffff;
+  padding: 10px;
+  border: 1px solid #000;
+  margin: 20px;
 }
 
+.project.card {
+  width: 300px;
+}
+
+/* TODO 1b: center the page with .container (max-width + margin: 0 auto)  */
+.container {
+  max-width: 0 auto;
+}
+
+/* ---------- STEP 2 · A row navigation bar ---------- */
+/* TODO 2: make .nav a links inline-block with padding                     */
+.nav a {
+  display: inline-block;
+  padding: 5px 20px;
+}
+
+.nav a:hover {
+  color: red;
+}
+
+/* ---------- STEP 3 · Positioning ---------- */
+
+/* TODO 3a: relative  – lift a card slightly on hover                      */
+.card:hover {
+  top: -10px;
+  box-shadow: 4px 4px 8px #0b3d5c;
+}
 /* TODO 3b: absolute  – pin the NEW badge to the card's top-right corner   */
 .badge {
+  top: 10px;
+  right: 10px;
   position: absolute;
-  top: 12px;
-  right: 12px;
-  font-weight: bold;
-  color: #fff;
+  background-color: yellow;
 }
-
 /* TODO 3c: fixed     – keep the "Top" button in the window's corner       */
 .to-top {
   position: fixed;
-  right: 20px;
   bottom: 20px;
-  font-size: 80px;
-  text-decoration: none;
-  color: red;
+  right: 20px;
 }
 
 /* ---------- STEP 4 · Responsive design ---------- */
 /* TODO 4a: put the three project cards in a row                           */
-.project {
-  display: inline-block;
-}
-
-.card .project {
-  width: 150px;
+.projects {
+  display: flex;
 }
 /* TODO 4b: add a @media query so they stack on screens 600px and narrower */
 @media (max-width: 600px) {
-  .project {
+  .projects {
     flex-direction: column;
   }
 }
