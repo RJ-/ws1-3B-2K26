@@ -1,0 +1,184 @@
+/* =========================================================
+   WS1 Portfolio · sample starter for the Week 11 lab
+   (Week 7 CSS + Week 8 dark mode are already done)
+   ========================================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Calibri, Arial, sans-serif;
+  line-height: 1.6;
+  color: #222222;
+  background-color: #f5f7fa;
+}
+
+h1,
+h2,
+h3 {
+  font-family: Georgia, serif;
+  color: #0b3d5c;
+}
+
+a {
+  color: #1c7293;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ---------- header + nav ---------- */
+.site-header {
+  background-color: #0b3d5c;
+  transition: background-color 0.4s;
+}
+
+.header-row {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.site-header .logo {
+  color: #ffffff;
+  margin: 0 0 8px;
+}
+
+.nav a {
+  display: inline-block;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 8px 14px;
+  margin-right: 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.nav a:hover {
+  border-color: #ffffff;
+}
+
+.nav button {
+  font: inherit;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #e8a33d;
+  color: #0b3d5c;
+  cursor: pointer;
+}
+
+#accentValue {
+  color: #ffffff;
+  font-family: monospace;
+}
+
+/* ---------- content ---------- */
+.hero {
+  padding: 40px 0 16px;
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 20px;
+  border: 1px solid #d9e1e8;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.about {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+#profile-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Week 11 Task 1: cards made by JavaScript get class="project ..." */
+#project-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.project {
+  flex: 1 1 250px;
+  background-color: #ffffff;
+  padding: 20px;
+  border: 1px solid #d9e1e8;
+  border-radius: 8px;
+}
+
+#filters {
+  margin-bottom: 16px;
+}
+
+#filters button {
+  font: inherit;
+  padding: 6px 14px;
+  margin-right: 6px;
+  border: 1px solid #0b3d5c;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #0b3d5c;
+  cursor: pointer;
+}
+
+form label {
+  display: block;
+  margin-top: 10px;
+}
+
+form input,
+form textarea {
+  width: 100%;
+  padding: 8px;
+  font: inherit;
+}
+
+form button {
+  margin-top: 12px;
+  padding: 8px 16px;
+}
+
+.site-footer {
+  text-align: center;
+  color: #5b6b78;
+}
+
+/* ---------- Week 8: dark mode ---------- */
+body.dark {
+  background-color: #121212;
+  color: #eeeeee;
+}
+
+body.dark h2,
+body.dark h3 {
+  color: #f2c879;
+}
+
+body.dark .card,
+body.dark .project {
+  background-color: #1e1e1e;
+  border-color: #333333;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 600px) {
+  .nav a {
+    display: block;
+    margin: 4px 0;
+  }
+
+  .about {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOM Playground</title>
+    <style>
+      body {
+        font-family: "Trebuchet MS", Arial, sans-serif;
+        line-height: 1.5;
+        color: #282624;
+        max-width: 640px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      h1 {
+        color: #0b3d5c;
+      }
+      .box {
+        border: 2px dashed #1c7293;
+        padding: 10px 14px;
+        margin: 10px 0;
+        min-height: 24px;
+      }
+      .box::before {
+        font-family: monospace;
+        color: #8a99a6;
+        margin-right: 10px;
+      }
+      #a::before {
+        content: "#a";
+      }
+      #b::before {
+        content: "#b";
+      }
+      button {
+        background-color: #0b3d5c;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Lecture warm-up: keep DevTools open on the Console AND Elements tabs -->
+    <h1 id="title">DOM Playground</h1>
+    <p id="description">JavaScript can read and change everything on this page.</p>
+
+    <ul id="parent">
+      <li class="learn">Become fluent in a new language</li>
+      <li class="learn">Learn how to code</li>
+      <li class="learn">Take a kick-boxing class</li>
+      <li class="learn">Learn how to play an instrument</li>
+      <li class="experience">Swim under a waterfall</li>
+    </ul>
+
+    <h2>textContent vs innerHTML</h2>
+    <p id="a" class="box"></p>
+    <p id="b" class="box"></p>
+
+    <button id="changeBtn">Change the title</button>
+
+    <script src="script.js"></script>
+  </body>
+</html>

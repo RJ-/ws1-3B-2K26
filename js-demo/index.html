@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WS1 Week 11 · JavaScript Code-Alongs</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Calibri, Arial, sans-serif;
+        line-height: 1.5;
+        color: #0f2a3d;
+        background-color: #f5f7fa;
+      }
+      header {
+        background-color: #082c43;
+        color: #ffffff;
+        padding: 32px 20px;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: #c9d6e0;
+      }
+      .kicker {
+        color: #e8a33d;
+        font-weight: bold;
+        letter-spacing: 2px;
+        font-size: 13px;
+        text-transform: uppercase;
+      }
+      h1 {
+        font-family: Cambria, Georgia, serif;
+        margin: 6px 0 0;
+      }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 24px 20px 40px;
+      }
+      ol {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        background-color: #ffffff;
+        border: 1px solid #d9e1e8;
+        border-radius: 8px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+      }
+      .num {
+        flex: 0 0 34px;
+        height: 34px;
+        border-radius: 50%;
+        background-color: #e8a33d;
+        color: #0b3d5c;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      h2 {
+        margin: 0;
+        font-size: 19px;
+      }
+      h2 a {
+        color: #0b3d5c;
+      }
+      .meta {
+        color: #5b6b78;
+        font-size: 14px;
+        margin: 2px 0 6px;
+      }
+      code {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 14px;
+        color: #1c7293;
+      }
+      .section {
+        margin: 28px 0 4px;
+        font-size: 20px;
+        color: #0b3d5c;
+      }
+      .videos {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0;
+      }
+      .videos li {
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .videos .meta {
+        margin: 2px 0 0;
+      }
+      .videos a {
+        color: #0b3d5c;
+        font-weight: bold;
+      }
+      .tip {
+        background-color: #eaf2f7;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="kicker">WS1 · Week 11 · Code-Along</div>
+      <h1>Dynamic Webpages with JavaScript</h1>
+      <p>Open each project in order. Edit its <code>script.js</code> in VS Code and keep the Console open.</p>
+    </header>
+
+    <main>
+      <ol>
+        <li>
+          <span class="num">1</span>
+          <div>
+            <h2><a href="dom-playground/index.html">DOM Playground</a></h2>
+            <p class="meta">Lecture warm-up · slides 4–8 · about 15 min</p>
+            <p>The DOM tree, one element vs. a list, <code>null</code>, <code>textContent</code> vs <code>innerHTML</code>, and a first click.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <div>
+            <h2><a href="bucket-list/index.html">Bucket List</a></h2>
+            <p class="meta">Code-along Part A · steps A1–A6 · about 60 min</p>
+            <p>Change text, create and remove list items, swap an image with <code>setAttribute</code>, select many elements, and toggle a class on click.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div>
+            <h2><a href="party-colors/index.html">Party Colors</a></h2>
+            <p class="meta">Code-along Part B · steps B1–B4 · about 25 min</p>
+            <p>A click event that paints the page a random hex color, plus a bug that shows no error at all.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <div>
+            <h2><a href="portfolio-lab/index.html">Portfolio Lab (sample)</a></h2>
+            <p class="meta">Week 11 Lab · Tasks 1–4 · 40 pts</p>
+            <p>Use your own portfolio if it works. If yours is missing or broken, start from this sample: Week 8 features are done, and the four lab tasks are TODOs in <code>script.js</code>.</p>
+          </div>
+        </li>
+      </ol>
+
+
+      <h2 class="section">▶ Video tutorials</h2>
+      <p class="meta">Self-paced? Watch each video once without typing, then do the matching project with the printed guide.</p>
+      <ul class="videos">
+          <li class="vid"><span class="num">1</span><div><a href="https://www.youtube.com/watch?v=NO5kUNxGIu0" target="_blank" rel="noopener">The JavaScript DOM explained in 5 minutes</a><p class="meta">Bro Code · watch before DOM Playground</p></div></li>
+          <li class="vid"><span class="num">2</span><div><a href="https://www.youtube.com/watch?v=y17RuWkWdn8" target="_blank" rel="noopener">Learn DOM Manipulation In 18 Minutes</a><p class="meta">Web Dev Simplified · watch before Bucket List</p></div></li>
+          <li class="vid"><span class="num">3</span><div><a href="https://www.youtube.com/watch?v=XF1_MlZ5l6M" target="_blank" rel="noopener">Learn JavaScript Event Listeners In 18 Minutes</a><p class="meta">Web Dev Simplified · watch before Party Colors</p></div></li>
+          <li class="vid"><span class="num">+</span><div><a href="https://www.youtube.com/watch?v=0ik6X4DJKCc" target="_blank" rel="noopener">JavaScript DOM Crash Course – Part 1</a><p class="meta">Traversy Media · optional extra practice</p></div></li>
+          <li class="vid"><span class="num">+</span><div><a href="https://www.youtube.com/watch?v=5fb2aPlgoys" target="_blank" rel="noopener">JavaScript DOM Manipulation – Full Course for Beginners</a><p class="meta">freeCodeCamp.org · optional deep dive at home</p></div></li>
+      </ul>
+
+      <div class="tip">
+        <strong>Fell behind?</strong> From the <code>checkpoints</code> folder, copy the step you're on
+        (for example <code>step3-script.js</code>) over your <code>script.js</code> and keep going.
+      </div>
+    </main>
+  </body>
+</html>

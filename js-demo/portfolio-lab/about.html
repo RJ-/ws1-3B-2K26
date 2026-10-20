@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Juan Dela Cruz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-row">
+      <h1 class="logo">Juan Dela Cruz</h1>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="projects.html">Projects</a>
+        <a href="contact.html">Contact</a>
+        <button id="themeBtn">Dark mode</button>
+        <!-- Week 11 Task 4 -->
+        <button id="accentBtn">Surprise me</button> <span id="accentValue"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card about">
+      <!-- Week 11 Task 3: click the photo to swap it -->
+      <img id="profile-photo" src="images/me.svg" alt="Illustration of Juan smiling">
+      <div>
+        <h2>About Me</h2>
+        <p>I'm a third-year IT student from Goa, Camarines Sur. I enjoy turning ideas into web pages.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Skills</h2>
+      <!-- Week 8: skills list is built by script.js -->
+      <ul id="skills"></ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Juan Dela Cruz &middot; WS1 Portfolio</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
