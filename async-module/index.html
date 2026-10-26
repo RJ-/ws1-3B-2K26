@@ -205,6 +205,63 @@ footer { color: var(--muted); font-size: 0.88rem; }
   .video .tag { grid-column: 2; justify-self: start; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---------- IDE-style code blocks (VS Code Dark+) ---------- */
+.ide { border-radius: 10px; overflow: hidden; background: #1e1e1e; border: 1px solid #333333; min-width: 0; }
+.ide-bar { display: flex; align-items: flex-end; gap: 12px; background: #252526; padding: 0 10px 0 12px; min-height: 38px; }
+.ide-dots { display: flex; gap: 7px; align-self: center; }
+.ide-dots span { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.ide-dots span:nth-child(1) { background: #ff5f57; }
+.ide-dots span:nth-child(2) { background: #febc2e; }
+.ide-dots span:nth-child(3) { background: #28c840; }
+.ide-tab {
+  display: flex; align-items: center; gap: 7px; background: #1e1e1e; color: #ffffff;
+  font-family: var(--font-mono); font-size: 0.78rem; padding: 8px 14px 9px;
+  border-top: 2px solid #e8a33d;
+}
+.ide-tab .js { color: #f1e05a; font-weight: 700; font-size: 0.7rem; }
+.ide-copy {
+  margin-left: auto; align-self: center; background: transparent; color: #cccccc;
+  border: 1px solid #3c3c3c; border-radius: 6px; font-size: 0.75rem; padding: 3px 10px; font-weight: 500;
+}
+.ide-copy:hover { background: #2d2d2d; }
+pre.code {
+  background: #1e1e1e; color: #d4d4d4; border-radius: 0; padding: 12px 0 14px;
+  counter-reset: line; font-size: 0.85rem; line-height: 1.65; tab-size: 2;
+}
+.demo pre.code { border-radius: 0; }
+.note pre.code, details pre.code { border-radius: 0; }
+pre.code .line { display: block; padding-right: 18px; min-height: 1.65em; }
+pre.code .line::before {
+  counter-increment: line; content: counter(line); display: inline-block;
+  width: 2.6em; padding-right: 1.4em; text-align: right; color: #858585;
+  user-select: none; -webkit-user-select: none;
+}
+pre.code .tk-c { color: #6a9955; font-style: normal; }
+pre.code .tk-s { color: #ce9178; }
+pre.code .tk-n { color: #b5cea8; }
+pre.code .tk-k { color: #569cd6; }
+pre.code .tk-kc { color: #c586c0; }
+pre.code .tk-f { color: #dcdcaa; }
+pre.code .tk-v { color: #9cdcfe; }
+pre.code .tk-t { color: #4ec9b0; }
+pre.code .tk-p { color: #d4d4d4; }
+
+/* ---------- YouTube previews (play on the page) ---------- */
+.yt { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #0f2233; }
+.yt-poster {
+  position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: none; border-radius: 0;
+  background-color: #0f2233; background-size: cover; background-position: center; cursor: pointer;
+  display: grid; place-items: center;
+}
+.yt-poster:hover .yt-play { transform: scale(1.06); }
+.yt-play { width: 72px; height: 50px; border-radius: 14px; background: #e62117; display: grid; place-items: center; transition: transform 0.15s; box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
+.yt-play::before { content: ""; border-left: 20px solid #ffffff; border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 5px; }
+.yt-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 16px 12px; text-align: left;
+  background: linear-gradient(transparent, rgba(0,0,0,0.75)); color: #ffffff; font-weight: 600; font-size: 0.95rem;
+}
+.yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 </style>
 </head><body>
 
@@ -782,26 +839,100 @@ const cups = await Promise.all(orders.map((d) => brew(d)));   // all at once</pr
 (function () {
   "use strict";
 
-  // ---------- tiny highlighter: comments and strings in code blocks ----------
+  // ---------- IDE-style code blocks (VS Code Dark+ colours) ----------
+  const KW_CTRL = new Set(["if", "else", "return", "try", "catch", "finally", "for", "of", "in", "while", "await", "throw", "break", "continue", "switch", "case", "default", "do"]);
+  const KW_DECL = new Set(["const", "let", "var", "function", "async", "new", "class", "typeof", "instanceof", "this", "true", "false", "null", "undefined", "void", "delete"]);
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function tok(cls, text) { return '<span class="tk-' + cls + '">' + esc(text) + "</span>"; }
   function highlightLine(line) {
-    let out = "", i = 0, q = null, buf = "";
+    let out = "", i = 0;
     while (i < line.length) {
       const ch = line[i];
-      if (q) {
-        buf += ch;
-        if (ch === "\\" && i + 1 < line.length) { buf += line[i + 1]; i += 2; continue; }
-        if (ch === q) { out += '<span class="s">' + esc(buf) + "</span>"; buf = ""; q = null; }
-        i++; continue;
+      if (ch === "/" && line[i + 1] === "/") { out += tok("c", line.slice(i)); break; }
+      if (ch === '"' || ch === "'" || ch === "`") {
+        let j = i + 1;
+        while (j < line.length && line[j] !== ch) { if (line[j] === "\\") j++; j++; }
+        out += tok("s", line.slice(i, j + 1)); i = j + 1; continue;
       }
-      if (ch === '"' || ch === "'" || ch === "`") { out += esc(buf); buf = ch; q = ch; i++; continue; }
-      if (ch === "/" && line[i + 1] === "/") { out += esc(buf) + '<span class="c">' + esc(line.slice(i)) + "</span>"; return out; }
-      buf += ch; i++;
+      if (/[0-9]/.test(ch) && !/[A-Za-z_$0-9]/.test(line[i - 1] || "")) {
+        let j = i; while (j < line.length && /[0-9._]/.test(line[j])) j++;
+        out += tok("n", line.slice(i, j)); i = j; continue;
+      }
+      if (/[A-Za-z_$]/.test(ch)) {
+        let j = i; while (j < line.length && /[A-Za-z0-9_$]/.test(line[j])) j++;
+        const word = line.slice(i, j);
+        let k = j; while (line[k] === " ") k++;
+        const prev = line[i - 1];
+        let cls;
+        if (KW_CTRL.has(word)) cls = "kc";
+        else if (KW_DECL.has(word)) cls = "k";
+        else if (line[k] === "(") cls = "f";
+        else if (/^[A-Z]/.test(word)) cls = "t";
+        else cls = "v";
+        if (prev === "." && cls !== "f") cls = "v";
+        out += tok(cls, word); i = j; continue;
+      }
+      if (ch === "=" && line[i + 1] === ">") { out += tok("k", "=>"); i += 2; continue; }
+      out += esc(ch); i++;
     }
-    return out + (q ? '<span class="s">' + esc(buf) + "</span>" : esc(buf));
+    return '<span class="line">' + out + "</span>";
+  }
+  function copyText(text, btn) {
+    const done = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy"; }, 1500); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { btn.textContent = "Select & copy"; });
+    } catch (e) { btn.textContent = "Select & copy"; }
   }
   document.querySelectorAll("pre.code").forEach(function (pre) {
-    pre.innerHTML = pre.textContent.split("\n").map(highlightLine).join("\n");
+    const raw = pre.textContent.replace(/\n$/, "");
+    pre.innerHTML = raw.split("\n").map(highlightLine).join("");
+    if (pre.closest(".demo")) return;          // run boxes already have their own bar
+    const ide = document.createElement("div");
+    ide.className = "ide";
+    const bar = document.createElement("div");
+    bar.className = "ide-bar";
+    bar.innerHTML = '<span class="ide-dots" aria-hidden="true"><span></span><span></span><span></span></span>' +
+      '<span class="ide-tab"><span class="js">JS</span>' + esc(pre.dataset.file || "script.js") + "</span>";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "ide-copy"; btn.textContent = "Copy";
+    btn.addEventListener("click", function () { copyText(raw, btn); });
+    bar.appendChild(btn);
+    pre.parentNode.insertBefore(ide, pre);
+    ide.append(bar, pre);
+  });
+
+  // ---------- YouTube previews: click to play on the page ----------
+  document.querySelectorAll("a.video").forEach(function (card) {
+    if (!card.querySelector(".tag.main")) return;
+    let id = null;
+    try { id = new URL(card.href).searchParams.get("v"); } catch (e) { id = null; }
+    if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+    const title = card.querySelector(".video-title").textContent;
+    const box = document.createElement("div");
+    box.className = "yt";
+    const poster = document.createElement("button");
+    poster.type = "button";
+    poster.className = "yt-poster";
+    poster.setAttribute("aria-label", "Play video: " + title);
+    poster.style.backgroundImage = "url(https://i.ytimg.com/vi/" + id + "/hqdefault.jpg)";
+    poster.innerHTML = '<span class="yt-play" aria-hidden="true"></span>';
+    const cap = document.createElement("span");
+    cap.className = "yt-cap";
+    cap.textContent = title;
+    poster.appendChild(cap);
+    poster.addEventListener("click", function () {
+      const frame = document.createElement("iframe");
+      frame.src = "https://www.youtube-nocookie.com/embed/" + id + "?autoplay=1&rel=0";
+      frame.title = title;
+      frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      frame.allowFullscreen = true;
+      frame.referrerPolicy = "strict-origin-when-cross-origin";
+      box.replaceChildren(frame);
+    });
+    box.appendChild(poster);
+    card.parentNode.insertBefore(box, card);
+    const sub = card.querySelector(".video-sub");
+    if (sub) sub.textContent = sub.textContent + " · or open on YouTube";
   });
 
   // ---------- run demos ----------
