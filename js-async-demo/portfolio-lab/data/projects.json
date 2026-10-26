@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Barangay Event Board",
+    "description": "A one-page site that lists upcoming barangay activities.",
+    "category": "web",
+    "featured": true
+  },
+  {
+    "title": "Org Event Poster",
+    "description": "A poster for our IT org's general assembly, made in Canva.",
+    "category": "design",
+    "featured": false
+  },
+  {
+    "title": "Pili Recipe Cards",
+    "description": "A small recipe collection built with lists and tables.",
+    "category": "web",
+    "featured": false
+  },
+  {
+    "title": "Class Logo Set",
+    "description": "Three logo ideas for our section's shirt.",
+    "category": "design",
+    "featured": false
+  }
+]

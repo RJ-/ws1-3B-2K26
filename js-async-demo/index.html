@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WS1 Week 12 · Async JavaScript Code-Alongs</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Calibri, Arial, sans-serif;
+        line-height: 1.5;
+        color: #0f2a3d;
+        background-color: #f5f7fa;
+      }
+      header {
+        background-color: #082c43;
+        color: #ffffff;
+        padding: 24px 20px;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: #c9d6e0;
+      }
+      .kicker {
+        color: #e8a33d;
+        font-weight: bold;
+        letter-spacing: 2px;
+        font-size: 13px;
+        text-transform: uppercase;
+      }
+      h1 {
+        font-family: Cambria, Georgia, serif;
+        margin: 6px 0 0;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px 20px 40px;
+      }
+      .card {
+        background-color: #ffffff;
+        border: 1px solid #d9e1e8;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 18px;
+      }
+      .card h2 {
+        margin: 0 0 4px;
+        font-size: 20px;
+        color: #0b3d5c;
+      }
+      .hint {
+        color: #5b6b78;
+        font-size: 14px;
+        margin: 0 0 12px;
+      }
+      button {
+        font: inherit;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 16px;
+        margin: 0 8px 8px 0;
+        background-color: #0b3d5c;
+        color: #ffffff;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #1c7293;
+      }
+      button:disabled {
+        background-color: #9aa9b5;
+        cursor: not-allowed;
+      }
+      button.alt {
+        background-color: #e8a33d;
+        color: #0b3d5c;
+      }
+      code {
+        font-family: Consolas, "Courier New", monospace;
+        color: #1c7293;
+      }
+      header {
+        padding: 32px 20px;
+      }
+      main {
+        max-width: 860px;
+      }
+      ol {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        background-color: #ffffff;
+        border: 1px solid #d9e1e8;
+        border-radius: 8px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+      }
+      .num {
+        flex: 0 0 34px;
+        height: 34px;
+        border-radius: 50%;
+        background-color: #e8a33d;
+        color: #0b3d5c;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      h2 {
+        margin: 0;
+        font-size: 19px;
+      }
+      h2 a {
+        color: #0b3d5c;
+      }
+      li p {
+        margin: 0;
+      }
+      .meta {
+        color: #5b6b78;
+        font-size: 14px;
+        margin: 2px 0 6px !important;
+      }
+      .section {
+        margin: 28px 0 4px;
+        font-size: 20px;
+        color: #0b3d5c;
+      }
+      .videos {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0;
+      }
+      .videos li {
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .videos a {
+        color: #0b3d5c;
+        font-weight: bold;
+      }
+      .tip {
+        background-color: #eaf2f7;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-top: 20px;
+      }
+      .warn {
+        background-color: #fdf4e6;
+        border-left: 4px solid #e8a33d;
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+        margin-bottom: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="kicker">WS1 · Week 12 · Code-Along</div>
+      <h1>Asynchronous JavaScript &amp; Promises</h1>
+      <p>Open each project in order. Edit its <code>script.js</code> in VS Code and keep the Console open.</p>
+    </header>
+
+    <main>
+      <div class="warn">
+        <strong>Open this page with Live Server</strong> (right-click <code>index.html</code> → Open with Live Server).
+        <code>fetch()</code> does not work on a page you opened by double-clicking it (<code>file://</code>).
+      </div>
+      <ol>
+        <li>
+          <span class="num">1</span>
+          <div>
+            <h2><a href="async-warmup/index.html">Sync vs. Async Warm-up</a></h2>
+            <p class="meta">Lecture warm-up · Parts 1–3 · about 15 min</p>
+            <p>Predict the order of <code>setTimeout</code>, freeze the page on purpose, and build a clock with <code>setInterval</code>.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <div>
+            <h2><a href="kape-orders/index.html">☕ Kape Orders</a></h2>
+            <p class="meta">Code-along Part A · steps A1–A6 · about 60 min</p>
+            <p>One coffee order written four ways: callbacks, callback hell, Promises with <code>.then()</code>, and <code>async</code>/<code>await</code>. Then <code>Promise.all</code> for rush hour.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div>
+            <h2><a href="fetch-explorer/index.html">Fetch Explorer</a></h2>
+            <p class="meta">Code-along Part B · steps B1–B5 · about 40 min</p>
+            <p>Load <code>data/events.json</code> with <code>fetch()</code>, show loading and error messages, then search a real web API (PokéAPI).</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <div>
+            <h2><a href="portfolio-lab/index.html">Portfolio Lab (sample)</a></h2>
+            <p class="meta">Week 12 Lab · Tasks 1–4 · 40 pts</p>
+            <p>Use your own portfolio if it works. Move your projects into <code>data/projects.json</code> and load them with <code>async</code>/<code>await</code>.</p>
+          </div>
+        </li>
+      </ol>
+
+      <h2 class="section">▶ Watch &amp; read</h2>
+      <p class="meta">Self-paced? Watch or read each one first, then do the matching project with the printed guide.</p>
+      <ul class="videos">
+          <li class="vid"><span class="num">1</span><div><a href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank" rel="noopener">What the heck is the event loop anyway?</a><p class="meta">Philip Roberts · JSConf EU · watch after the warm-up</p></div></li>
+          <li class="vid"><span class="num">2</span><div><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Introducing" target="_blank" rel="noopener">Introducing asynchronous JavaScript</a><p class="meta">MDN · read before Kape Orders</p></div></li>
+          <li class="vid"><span class="num">3</span><div><a href="https://javascript.info/promise-basics" target="_blank" rel="noopener">Promise basics</a><p class="meta">javascript.info · short chapters with tasks, good for A3–A5</p></div></li>
+          <li class="vid"><span class="num">4</span><div><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch" target="_blank" rel="noopener">Using the Fetch API</a><p class="meta">MDN · read before Fetch Explorer</p></div></li>
+          <li class="vid"><span class="num">+</span><div><a href="https://pokeapi.co/docs/v2" target="_blank" rel="noopener">PokéAPI documentation</a><p class="meta">pokeapi.co · what else you can ask the API for (step B5)</p></div></li>
+      </ul>
+
+      <div class="tip">
+        <strong>Fell behind?</strong> From the <code>checkpoints</code> folder, copy the step you're on
+        (for example <code>kape-orders/step3-script.js</code>) over your <code>script.js</code> and keep going.
+      </div>
+    </main>
+  </body>
+</html>

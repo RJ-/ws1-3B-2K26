@@ -1,0 +1,32 @@
+[
+  {
+    "title": "CECS IT Week Opening",
+    "date": "2026-11-09",
+    "venue": "PSU Gymnasium",
+    "category": "Celebration"
+  },
+  {
+    "title": "24-Hour Hackathon: Smart Barangay",
+    "date": "2026-11-12",
+    "venue": "CECS Computer Laboratory 2",
+    "category": "Competition"
+  },
+  {
+    "title": "Web Dev Talk: From HTML to Full Stack",
+    "date": "2026-11-14",
+    "venue": "CECS AVR",
+    "category": "Seminar"
+  },
+  {
+    "title": "Portfolio Showcase (BSIT 3)",
+    "date": "2026-12-04",
+    "venue": "CECS Lobby",
+    "category": "Exhibit"
+  },
+  {
+    "title": "Pili Festival Volunteer Briefing",
+    "date": "2026-12-07",
+    "venue": "Online (Google Meet)",
+    "category": "Community"
+  }
+]

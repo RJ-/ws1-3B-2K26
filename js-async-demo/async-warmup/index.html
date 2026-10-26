@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Async Warm-up</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Calibri, Arial, sans-serif;
+        line-height: 1.5;
+        color: #0f2a3d;
+        background-color: #f5f7fa;
+      }
+      header {
+        background-color: #082c43;
+        color: #ffffff;
+        padding: 24px 20px;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: #c9d6e0;
+      }
+      .kicker {
+        color: #e8a33d;
+        font-weight: bold;
+        letter-spacing: 2px;
+        font-size: 13px;
+        text-transform: uppercase;
+      }
+      h1 {
+        font-family: Cambria, Georgia, serif;
+        margin: 6px 0 0;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px 20px 40px;
+      }
+      .card {
+        background-color: #ffffff;
+        border: 1px solid #d9e1e8;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 18px;
+      }
+      .card h2 {
+        margin: 0 0 4px;
+        font-size: 20px;
+        color: #0b3d5c;
+      }
+      .hint {
+        color: #5b6b78;
+        font-size: 14px;
+        margin: 0 0 12px;
+      }
+      button {
+        font: inherit;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 16px;
+        margin: 0 8px 8px 0;
+        background-color: #0b3d5c;
+        color: #ffffff;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #1c7293;
+      }
+      button:disabled {
+        background-color: #9aa9b5;
+        cursor: not-allowed;
+      }
+      button.alt {
+        background-color: #e8a33d;
+        color: #0b3d5c;
+      }
+      code {
+        font-family: Consolas, "Courier New", monospace;
+        color: #1c7293;
+      }
+      .output {
+        list-style: decimal;
+        min-height: 28px;
+        background-color: #f5f7fa;
+        border-radius: 6px;
+        padding: 10px 10px 10px 36px;
+        margin: 4px 0 0;
+        font-family: Consolas, "Courier New", monospace;
+      }
+      #status {
+        font-weight: bold;
+        color: #0b3d5c;
+      }
+      #clock {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 40px;
+        color: #0b3d5c;
+        margin: 4px 0 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="kicker">WS1 · Week 12 · Warm-up</div>
+      <h1>Sync vs. Async</h1>
+      <p>JavaScript has one thread. Some jobs wait in line, and some jobs get handed off.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Part 1 · Predict the order</h2>
+        <p class="hint">Write your guess on paper first: in what order will the three messages appear?</p>
+        <button id="runOrder">Run</button>
+        <ol id="order-log" class="output"></ol>
+      </section>
+
+      <section class="card">
+        <h2>Part 2 · Freeze vs. wait</h2>
+        <p class="hint">Click <strong>Freeze</strong>, then try to click the counter. Now do the same with <strong>Wait</strong>.</p>
+        <button id="counterBtn" class="alt">Click me (0)</button>
+        <button id="freezeBtn">Freeze 3 s</button>
+        <button id="waitBtn">Wait 3 s</button>
+        <p id="status">Ready.</p>
+      </section>
+
+      <section class="card">
+        <h2>Part 3 · A clock with setInterval</h2>
+        <p class="hint">A timer that repeats, and a way to stop it.</p>
+        <div id="clock">--:--:--</div>
+        <button id="startBtn">Start</button>
+        <button id="stopBtn" class="alt">Stop</button>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

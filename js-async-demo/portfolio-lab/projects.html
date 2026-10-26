@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | Juan Dela Cruz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-row">
+      <h1 class="logo">Juan Dela Cruz</h1>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="projects.html">Projects</a>
+        <a href="contact.html">Contact</a>
+        <button id="themeBtn">Dark mode</button>
+        <!-- Week 11 Task 4 -->
+        <button id="accentBtn">Surprise me</button> <span id="accentValue"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Projects</h2>
+
+      <!-- Week 11 Task 2: filter buttons -->
+      <div id="filters">
+        <button data-filter="all">All</button>
+        <button data-filter="web">Web</button>
+        <button data-filter="design">Design</button>
+      </div>
+
+      <!-- Week 12 Task 2: loading / error message goes here -->
+      <p id="project-status" class="status"></p>
+
+      <!-- Week 11 Task 1: JavaScript builds the project cards inside here -->
+      <!-- Week 12: the cards now come from data/projects.json -->
+      <div id="project-list"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Juan Dela Cruz &middot; WS1 Portfolio</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

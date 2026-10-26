@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kape Orders</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Calibri, Arial, sans-serif;
+        line-height: 1.5;
+        color: #0f2a3d;
+        background-color: #f5f7fa;
+      }
+      header {
+        background-color: #082c43;
+        color: #ffffff;
+        padding: 24px 20px;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: #c9d6e0;
+      }
+      .kicker {
+        color: #e8a33d;
+        font-weight: bold;
+        letter-spacing: 2px;
+        font-size: 13px;
+        text-transform: uppercase;
+      }
+      h1 {
+        font-family: Cambria, Georgia, serif;
+        margin: 6px 0 0;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px 20px 40px;
+      }
+      .card {
+        background-color: #ffffff;
+        border: 1px solid #d9e1e8;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 18px;
+      }
+      .card h2 {
+        margin: 0 0 4px;
+        font-size: 20px;
+        color: #0b3d5c;
+      }
+      .hint {
+        color: #5b6b78;
+        font-size: 14px;
+        margin: 0 0 12px;
+      }
+      button {
+        font: inherit;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 16px;
+        margin: 0 8px 8px 0;
+        background-color: #0b3d5c;
+        color: #ffffff;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #1c7293;
+      }
+      button:disabled {
+        background-color: #9aa9b5;
+        cursor: not-allowed;
+      }
+      button.alt {
+        background-color: #e8a33d;
+        color: #0b3d5c;
+      }
+      code {
+        font-family: Consolas, "Courier New", monospace;
+        color: #1c7293;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      select {
+        font: inherit;
+        padding: 8px 10px;
+        border: 1px solid #b8c6d1;
+        border-radius: 6px;
+        margin: 0 8px 8px 0;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .step {
+        font-size: 12px;
+        font-weight: bold;
+        color: #e8a33d;
+        display: block;
+      }
+      .alt .step {
+        color: #0b3d5c;
+      }
+      #spinner {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        color: #0b3d5c;
+        font-weight: bold;
+        margin: 6px 0 10px;
+      }
+      #spinner.show {
+        display: flex;
+      }
+      #spinner::before {
+        content: "";
+        width: 18px;
+        height: 18px;
+        border: 3px solid #d9e1e8;
+        border-top-color: #e8a33d;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #log {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 15px;
+      }
+      #log li {
+        padding: 6px 10px;
+        border-left: 4px solid #1c7293;
+        background-color: #f5f7fa;
+        margin-bottom: 6px;
+        border-radius: 0 6px 6px 0;
+      }
+      #log li.success {
+        border-left-color: #2e8b57;
+        background-color: #ebf7ef;
+      }
+      #log li.error {
+        border-left-color: #c0392b;
+        background-color: #fbeceb;
+      }
+      #log li.time {
+        border-left-color: #e8a33d;
+        background-color: #fdf4e6;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="kicker">WS1 · Week 12 · Code-Along Part A</div>
+      <h1>☕ Kape ni Juan · Order Board</h1>
+      <p>Taking an order takes 1 s, brewing takes 2 s, serving takes 1 s. The barista never stands still.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Place an order</h2>
+        <p class="hint">Pick a drink, then use the button for the step we are on. (Psst: the Ube Latte is sold out.)</p>
+        <div class="controls">
+          <select id="drink">
+            <option>Kapeng Barako</option>
+            <option>Pili Latte</option>
+            <option>Iced Mocha</option>
+            <option>Ube Latte</option>
+          </select>
+        </div>
+        <div class="row">
+          <button id="callbackBtn"><span class="step">A1–A2</span>Order with callbacks</button>
+          <button id="thenBtn"><span class="step">A4</span>Order with .then()</button>
+          <button id="asyncBtn"><span class="step">A5</span>Order with async/await</button>
+          <button id="rushBtn" class="alt"><span class="step">A6</span>Rush hour: 3 orders</button>
+        </div>
+        <div id="spinner">Barista is working…</div>
+      </section>
+
+      <section class="card">
+        <h2>Order log</h2>
+        <ul id="log"></ul>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1012 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Async JavaScript, Part 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one reading column; sticky lesson chips; each lesson = watch → read → try → do → check */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #12263a;
+  --muted: #4f6272;
+  --line: #d6dee5;
+  --heading: #0b3d5c;
+  --accent: #a65a0c;
+  --accent-bg: #fbf0de;
+  --amber: #e8a33d;
+  --hero-bg: #082c43;
+  --hero-ink: #f5f3ee;
+  --hero-muted: #c3d2de;
+  --code-bg: #0f2233;
+  --code-ink: #e6edf3;
+  --code-com: #8fa7b8;
+  --code-str: #f2b555;
+  --good: #23683f;
+  --good-bg: #e5f2ea;
+  --bad: #a8352a;
+  --bad-bg: #f8e7e4;
+  --chip: #e6edf3;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1720; --surface: #13222e; --ink: #e3eaf0; --muted: #a2b2bf; --line: #26394a;
+    --heading: #9fd0ee; --accent: #f0b45a; --accent-bg: #2c2314; --amber: #e8a33d;
+    --hero-bg: #061f30; --hero-ink: #f5f3ee; --hero-muted: #b4c5d2;
+    --code-bg: #08131c; --code-ink: #e6edf3; --code-com: #8fa7b8; --code-str: #f2b555;
+    --good: #7fd3a1; --good-bg: #14291d; --bad: #f19488; --bad-bg: #33191a; --chip: #1c3040;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1720; --surface: #13222e; --ink: #e3eaf0; --muted: #a2b2bf; --line: #26394a;
+  --heading: #9fd0ee; --accent: #f0b45a; --accent-bg: #2c2314; --amber: #e8a33d;
+  --hero-bg: #061f30; --hero-ink: #f5f3ee; --hero-muted: #b4c5d2;
+  --code-bg: #08131c; --code-ink: #e6edf3; --code-com: #8fa7b8; --code-str: #f2b555;
+  --good: #7fd3a1; --good-bg: #14291d; --bad: #f19488; --bad-bg: #33191a; --chip: #1c3040;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--hero-bg);
+}
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { text-wrap: balance; color: var(--heading); line-height: 1.2; }
+h2 { font-size: 1.75rem; margin: 0; }
+h3 { font-size: 1.2rem; margin: 0; }
+p { margin: 0; }
+a { color: var(--heading); }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+/* ---------- hero ---------- */
+.hero { background: var(--hero-bg); color: var(--hero-ink); }
+.hero .wrap { padding-block: 40px 32px; display: grid; gap: 14px; }
+.kicker { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); }
+.hero h1 { color: var(--hero-ink); font-size: clamp(2rem, 5vw, 2.8rem); margin: 0; }
+.hero p { color: var(--hero-muted); max-width: 62ch; }
+.progress { display: grid; gap: 8px; margin-top: 8px; max-width: 520px; }
+.progress-track { height: 10px; border-radius: 99px; background: rgba(255,255,255,0.14); overflow: hidden; }
+.progress-fill { height: 100%; width: 0; background: var(--amber); transition: width 0.3s; }
+.progress-label { font-size: 0.9rem; color: var(--hero-muted); font-variant-numeric: tabular-nums; }
+
+/* ---------- lesson nav ---------- */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; gap: 8px; overflow-x: auto; padding-block: 10px; scrollbar-width: thin; }
+.nav a {
+  flex: none; text-decoration: none; font-size: 0.9rem; font-weight: 500;
+  padding: 6px 12px; border-radius: 99px; background: var(--chip); color: var(--ink);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav a .tick { color: var(--good); font-weight: 700; }
+
+main .wrap { display: grid; gap: 28px; padding-block: 28px 64px; }
+
+/* ---------- boxes ---------- */
+.start { background: var(--accent-bg); border-radius: 12px; padding: 20px 22px; display: grid; gap: 10px; }
+.start h2 { font-size: 1.25rem; }
+.start ul, .lesson ul, .lesson ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+
+.lesson { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px 26px; display: grid; gap: 22px; scroll-margin-top: 70px; }
+.lesson-head { display: grid; gap: 6px; }
+.lesson-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.9rem; color: var(--muted); }
+.lesson-num { font-family: var(--font-mono); font-weight: 700; color: var(--accent); font-size: 0.85rem; letter-spacing: 0.06em; }
+.goals { color: var(--muted); }
+
+.block { display: grid; gap: 12px; min-width: 0; }
+.block-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+
+.videos { display: grid; gap: 10px; }
+.video {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+  text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--bg);
+}
+.video:hover { border-color: var(--heading); }
+.play { width: 38px; height: 38px; border-radius: 50%; background: var(--heading); display: grid; place-items: center; }
+.play::before { content: ""; border-left: 12px solid var(--surface); border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+.video-title { font-weight: 600; line-height: 1.35; }
+.video-sub { font-size: 0.88rem; color: var(--muted); }
+.tag { font-size: 0.75rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.tag.main { background: var(--heading); color: var(--surface); }
+.tag.opt { background: var(--chip); color: var(--muted); }
+
+pre.code {
+  margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.6;
+}
+pre.code .c { color: var(--code-com); }
+pre.code .s { color: var(--code-str); }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+.table-wrap { overflow-x: auto; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.note { border-left: 4px solid var(--amber); background: var(--accent-bg); padding: 12px 16px; border-radius: 0 10px 10px 0; display: grid; gap: 6px; }
+.note.bad { border-left-color: var(--bad); background: var(--bad-bg); }
+.note strong { color: var(--ink); }
+
+/* ---------- run demos ---------- */
+.demo { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.demo-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: var(--chip); }
+.demo-bar .demo-title { font-weight: 600; font-size: 0.92rem; margin-right: auto; }
+button, select {
+  font: inherit; font-size: 0.9rem; border-radius: 8px; padding: 6px 14px; cursor: pointer;
+}
+button { border: none; background: var(--heading); color: var(--surface); font-weight: 600; }
+button:disabled { opacity: 0.55; cursor: progress; }
+button.ghost { background: transparent; color: var(--heading); border: 1px solid var(--heading); }
+select { border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.console {
+  margin: 0; min-height: 52px; background: var(--code-bg); color: var(--code-ink);
+  font-family: var(--font-mono); font-size: 0.84rem; padding: 12px 14px; list-style: none;
+  display: grid; gap: 2px; overflow-x: auto;
+}
+.console li { white-space: pre; }
+.console .t { color: var(--code-com); }
+.console .ok { color: #8fdcab; }
+.console .err { color: #f3a097; }
+.console .hint { color: var(--code-com); font-style: italic; }
+
+/* ---------- predict ---------- */
+details.predict { border: 1px dashed var(--line); border-radius: 10px; padding: 12px 16px; }
+details.predict summary { cursor: pointer; font-weight: 600; color: var(--heading); }
+details.predict[open] summary { margin-bottom: 8px; }
+
+/* ---------- do ---------- */
+.do-list { list-style: none; padding: 0 !important; display: grid; gap: 8px !important; }
+.do-list li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.step-pill { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; background: var(--accent-bg); color: var(--accent); padding: 2px 8px; border-radius: 6px; margin-top: 2px; }
+
+/* ---------- quiz ---------- */
+.quiz { display: grid; gap: 14px; }
+.q { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.q legend { font-weight: 600; padding: 0; }
+.q fieldset { border: none; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 0; }
+.opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.opt:hover { background: var(--chip); }
+.opt input { margin-top: 5px; accent-color: var(--heading); }
+.opt code { white-space: nowrap; }
+.feedback { font-size: 0.93rem; padding: 10px 12px; border-radius: 8px; }
+.feedback.right { background: var(--good-bg); color: var(--good); }
+.feedback.wrong { background: var(--bad-bg); color: var(--bad); }
+.feedback span { color: var(--ink); }
+
+.done-row { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 10px; background: var(--good-bg); }
+.done-row input { width: 22px; height: 22px; accent-color: var(--good); }
+.done-row label { font-weight: 600; cursor: pointer; }
+
+.deeper { display: grid; gap: 10px; }
+footer { color: var(--muted); font-size: 0.88rem; }
+
+@media (max-width: 560px) {
+  .lesson { padding: 22px 16px; }
+  .video { grid-template-columns: auto 1fr; }
+  .video .tag { grid-column: 2; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head><body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">WS1 · Week 12 · Self-paced module</div>
+    <h1>Async JavaScript, Part 2</h1>
+    <p>In class we got as far as callbacks. Here you'll pick up there: callbacks again, more slowly, then callback hell, Promises, async/await, and loading data with fetch(). Each lesson goes in the same order: <b>watch, read, try, do, check</b>.</p>
+    <p>Time: about 4 hours in total. Split it over the week, one or two lessons per sitting.</p>
+    <div class="progress" aria-live="polite">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 of 6 lessons done</div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Lessons">
+  <div class="wrap">
+    <a href="#callbacks" data-lesson="l1">1 · Callbacks <span class="tick" hidden>✓</span></a>
+    <a href="#callback-hell" data-lesson="l2">2 · Callback hell <span class="tick" hidden>✓</span></a>
+    <a href="#promises" data-lesson="l3">3 · Promises <span class="tick" hidden>✓</span></a>
+    <a href="#await" data-lesson="l4">4 · async / await <span class="tick" hidden>✓</span></a>
+    <a href="#fetch" data-lesson="l5">5 · fetch() <span class="tick" hidden>✓</span></a>
+    <a href="#lab" data-lesson="l6">6 · Lab &amp; submit <span class="tick" hidden>✓</span></a>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+  <section class="start">
+    <h2>Before you start</h2>
+    <ul>
+      <li>Get the starter files: <code>git pull</code> the class repo and open its <code>js-async-demo/</code> folder, or download <code>JS_Async_CodeAlong_Starter.zip</code> from Google Classroom. You can also <a href="../js-async-demo/">open the starters in your browser</a> to look around first.</li>
+      <li>Open the folder in VS Code. Right-click <code>starter/index.html</code> → <b>Open with Live Server</b>. Open DevTools (F12) → <b>Console</b>.</li>
+      <li>Keep <code>CodeAlong_Guide.md</code> open beside you. It has the full code for every step this module asks you to do.</li>
+      <li>The grey <b>Run</b> boxes on this page are live: click them and watch the output appear in order.</li>
+      <li>Stuck on a step? Copy the matching file from <code>checkpoints/</code> over your <code>script.js</code>, then post your question in the Classroom stream.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== LESSON 1 ===================== -->
+  <section class="lesson" id="callbacks">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 1</span>
+      <h2>Callbacks: a function you hand over</h2>
+      <div class="lesson-meta"><span>About 45 min</span><span>Code-along step A1</span></div>
+      <p class="goals">By the end you can say what a callback is, tell a <i>now</i> callback from a <i>later</i> callback, and pass a function without accidentally calling it.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Watch</div>
+      <div class="videos">
+        <a class="video" href="https://www.youtube.com/watch?v=i2SPq-nb3NQ" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">Learn JavaScript CALLBACKS in 7 minutes!</span><br><span class="video-sub">Bro Code · watch this first</span></span>
+          <span class="tag main">Main</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=K-Q-xyrA89M" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">Asynchronous JavaScript Tutorial #4: Callback Functions</span><br><span class="video-sub">Net Ninja · uses an older way to request data (XMLHttpRequest); focus on the callback idea</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 1. Functions are values</div>
+      <p>In JavaScript a function is a value, like a number or a string. You can store it in a variable or pass it to another function. The name <i>without</i> parentheses is the function itself. The name <i>with</i> parentheses runs it.</p>
+<pre class="code">function sayHi() {
+  console.log("Hi!");
+}
+
+const greet = sayHi;   // no () → we copied the function, nothing runs
+greet();               // () → now it runs: Hi!</pre>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 2. A callback is a function you pass in</div>
+      <p>A <b>callback</b> is a function you give to another function, so that function can call it for you. You decide <i>what</i> should happen; the other function decides <i>when</i>.</p>
+<pre class="code">function doTwice(action) {
+  action();   // the function we were given is called here…
+  action();   // …and here
+}
+
+doTwice(sayHi);   // Hi!  Hi!   (pass sayHi, don't call it)</pre>
+      <p>You have used callbacks since Week 11 without the name. They come in two kinds:</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Kind</th><th>Example</th><th>When it runs</th></tr>
+          <tr><td>Now (synchronous)</td><td><code>[1, 2, 3].forEach((n) =&gt; console.log(n))</code></td><td>Right away, before the next line</td></tr>
+          <tr><td>Later (asynchronous)</td><td><code>setTimeout(sayHi, 2000)</code></td><td>After 2 seconds, when the stack is empty</td></tr>
+          <tr><td>Later (asynchronous)</td><td><code>btn.addEventListener("click", sayHi)</code></td><td>Whenever the user clicks, maybe never</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Try it</div>
+      <div class="demo" data-demo="nowLater">
+        <div class="demo-bar"><span class="demo-title">Now vs. later callbacks</span><button type="button">Run</button></div>
+<pre class="code">console.log("A");
+[1, 2].forEach((n) => console.log(n));        // now
+setTimeout(() => console.log("B"), 0);       // later
+console.log("C");</pre>
+        <ol class="console"><li class="hint">Click Run. The number on the left is the time since you clicked.</li></ol>
+      </div>
+      <p>The <code>forEach</code> callback runs immediately, inside the line that calls it. The <code>setTimeout</code> callback goes to the browser and comes back only after every other line has finished.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 3. The #1 callback mistake: <code>sayHi</code> vs <code>sayHi()</code></div>
+      <div class="note bad">
+        <p><strong>Adding <code>()</code> calls the function right now</strong> and passes along whatever it returns (here, <code>undefined</code>).</p>
+      </div>
+<pre class="code">setTimeout(sayHi, 2000);      // ✓ pass the function: "Hi!" after 2 s
+setTimeout(sayHi(), 2000);    // ✗ runs sayHi NOW, then setTimeout gets undefined
+
+btn.addEventListener("click", sayHi);     // ✓ runs on every click
+btn.addEventListener("click", sayHi());   // ✗ runs once on page load, never on click</pre>
+      <div class="demo" data-demo="parens">
+        <div class="demo-bar"><span class="demo-title">See the difference</span><button type="button">Run</button></div>
+        <ol class="console"><li class="hint">Click Run. Both versions start at the same moment.</li></ol>
+      </div>
+      <p>Need to pass arguments? Wrap the call in an arrow function, so <i>it</i> is what gets passed: <code>setTimeout(() =&gt; greetUser("Ana"), 2000)</code>.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 4. Callbacks that receive data</div>
+      <p>Often the function that calls your callback hands it a value. You choose the parameter name. These three lines all pass the same kind of callback:</p>
+<pre class="code">brewWithCallback("Pili Latte", function (cup) { console.log(cup); });
+brewWithCallback("Pili Latte", (cup) => { console.log(cup); });
+brewWithCallback("Pili Latte", (cup) => console.log(cup));
+
+// inside brewWithCallback, after 2 seconds:  done(drink + " ☕");
+// whatever is passed to done(...) arrives as cup</pre>
+    </div>
+
+    <details class="predict">
+      <summary>Predict: what does this print, and in what order?</summary>
+<pre class="code">function later(fn) {
+  setTimeout(fn, 1000);
+}
+
+console.log("start");
+later(() => console.log("one second later"));
+later(console.log("oops"));
+console.log("end");</pre>
+      <p><b>Answer:</b> <code>start</code>, <code>oops</code>, <code>end</code>, then <code>one second later</code>. The third line has <code>()</code>, so <code>console.log("oops")</code> runs immediately and <code>later</code> receives <code>undefined</code>. Nothing else happens a second later for that call.</p>
+    </details>
+
+    <div class="block">
+      <div class="block-label">Do</div>
+      <ul class="do-list">
+        <li><span class="step-pill">W1–W3</span><span>If you missed the class demo, do the warm-up in <code>async-warmup/</code> first (Parts 1–3 in the guide).</span></li>
+        <li><span class="step-pill">A1</span><span>Open <code>kape-orders/</code>, type step A1, then paste the commented line into the Console. "Ready: Kapeng Barako ☕" should appear 2 seconds later.</span></li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Check yourself</div>
+      <div class="quiz" data-quiz="l1"></div>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l1" data-done="l1"><label for="done-l1">I finished Lesson 1</label></div>
+  </section>
+
+  <!-- ===================== LESSON 2 ===================== -->
+  <section class="lesson" id="callback-hell">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 2</span>
+      <h2>Callback hell: steps inside steps</h2>
+      <div class="lesson-meta"><span>About 30 min</span><span>Code-along step A2</span></div>
+      <p class="goals">By the end you can explain why steps that must happen in order lead to nested callbacks, and read an error-first callback.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Watch</div>
+      <div class="videos">
+        <a class="video" href="https://www.youtube.com/watch?v=NOlOw03qBfw" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">What is JavaScript CALLBACK HELL?</span><br><span class="video-sub">Bro Code</span></span>
+          <span class="tag main">Main</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · Order means nesting</div>
+      <p>A coffee order has three steps: take the order (1 s), brew (2 s), serve (1 s). Brewing can only start when the order is taken, so the "brew" call has to go <i>inside</i> the "take order" callback. Serving goes inside the brewing callback. Each step adds a level.</p>
+      <p>Each step can also fail. The usual convention for callbacks is <b>error-first</b>: the callback's first parameter is an error (or <code>null</code> when everything worked), and the second is the result.</p>
+<pre class="code">takeOrderCb(drink, (error, confirmed) => {
+  if (error) { show(error); return; }          // check #1
+  brewCb(confirmed, (error, cup) => {
+    if (error) { show(error); return; }        // check #2
+    serveCb(cup, (error) => {
+      if (error) { show(error); return; }      // check #3
+      show("Order complete!");
+    });
+  });
+});</pre>
+      <div class="demo" data-demo="hell">
+        <div class="demo-bar">
+          <span class="demo-title">Run the nested order</span>
+          <select id="hellDrink" aria-label="Drink"><option>Pili Latte</option><option>Ube Latte</option></select>
+          <button type="button">Run</button>
+        </div>
+        <ol class="console"><li class="hint">Times are shortened. Try Ube Latte: it's sold out.</li></ol>
+      </div>
+      <div class="note">
+        <p><strong>Why it hurts:</strong> the code grows to the right with every step; every level needs its own error check; adding or reordering a step means re-nesting everything.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · Before Promises: name your functions</div>
+      <p>One way to flatten the pyramid is to give each step a name. It reads better, but you still pass callbacks around and check errors at every step. Promises (Lesson 3) solve both problems.</p>
+<pre class="code">function start(drink) { takeOrderCb(drink, afterOrder); }
+function afterOrder(error, d) { if (error) return show(error); brewCb(d, afterBrew); }
+function afterBrew(error, cup) { if (error) return show(error); serveCb(cup, done); }
+function done() { show("Order complete!"); }</pre>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Do</div>
+      <ul class="do-list">
+        <li><span class="step-pill">A2</span><span>Type step A2 in <code>kape-orders/script.js</code>. Order a Pili Latte (4 log lines) and an Ube Latte (sold-out message). Then count the levels of indentation in your code.</span></li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Check yourself</div>
+      <div class="quiz" data-quiz="l2"></div>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l2" data-done="l2"><label for="done-l2">I finished Lesson 2</label></div>
+  </section>
+
+  <!-- ===================== LESSON 3 ===================== -->
+  <section class="lesson" id="promises">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 3</span>
+      <h2>Promises: an order number for a value</h2>
+      <div class="lesson-meta"><span>About 40 min</span><span>Code-along steps A3–A4</span></div>
+      <p class="goals">By the end you can name the three states of a Promise, make one with <code>new Promise</code>, and chain steps with <code>.then()</code>, <code>.catch()</code> and <code>.finally()</code>.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Watch</div>
+      <div class="videos">
+        <a class="video" href="https://www.youtube.com/watch?v=NOzi4wBHn0o" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">What are JavaScript PROMISES?</span><br><span class="video-sub">Bro Code</span></span>
+          <span class="tag main">Main</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=DHvZLI7Db8E" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">JavaScript Promises In 10 Minutes</span><br><span class="video-sub">Web Dev Simplified · a second explanation, good if the first didn't click</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · Three states</div>
+      <p>When you pay at a café you don't get coffee, you get an order number. A <b>Promise</b> is that number: an object you get right away that stands for a value that isn't ready yet.</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>State</th><th>Meaning</th><th>How it gets there</th></tr>
+          <tr><td><code>pending</code></td><td>Still working</td><td>Every Promise starts here</td></tr>
+          <tr><td><code>fulfilled</code></td><td>Done, here's the value</td><td><code>resolve(value)</code></td></tr>
+          <tr><td><code>rejected</code></td><td>Failed, here's the error</td><td><code>reject(error)</code></td></tr>
+        </table>
+      </div>
+      <p>Once a Promise is fulfilled or rejected (together called <b>settled</b>), it never changes again.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · Make one, then use it</div>
+<pre class="code">function takeOrder(drink) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (SOLD_OUT.includes(drink)) {
+        reject(new Error(`Sorry, ${drink} is sold out`));
+      } else {
+        resolve(drink);
+      }
+    }, 1000);
+  });
+}
+
+takeOrder("Pili Latte")
+  .then((drink) => brew(drink))      // gets the value from resolve
+  .then((cup) => serve(cup))
+  .catch((error) => show(error.message))   // ANY step that rejects lands here
+  .finally(() => setBusy(false));          // runs either way</pre>
+      <p>Compare this with Lesson 2: the same three steps, flat, with one error handler.</p>
+      <div class="demo" data-demo="promise">
+        <div class="demo-bar">
+          <span class="demo-title">Run the Promise chain</span>
+          <select id="promiseDrink" aria-label="Drink"><option>Pili Latte</option><option>Ube Latte</option></select>
+          <button type="button">Run</button>
+        </div>
+        <ol class="console"><li class="hint">Times are shortened. Try both drinks.</li></ol>
+      </div>
+    </div>
+
+    <div class="note bad">
+      <p><strong>The return rule.</strong> Each <code>.then</code> must <b>return</b> the next Promise, or the chain stops waiting. An arrow function without braces returns automatically. With braces you must write <code>return</code>:</p>
+<pre class="code">.then((drink) => brew(drink))              // ✓ returns automatically
+.then((drink) => { return brew(drink); })  // ✓
+.then((drink) => { brew(drink); })         // ✗ returns undefined: the next step runs too early</pre>
+    </div>
+
+    <details class="predict">
+      <summary>Predict: what is logged right away, and what after 1 second?</summary>
+<pre class="code">const p = takeOrder("Pili Latte");
+console.log(p);
+p.then((drink) => console.log("Got:", drink));
+console.log("waiting…");</pre>
+      <p><b>Answer:</b> right away, <code>Promise {&lt;pending&gt;}</code>, then <code>waiting…</code>. After 1 second, <code>Got: Pili Latte</code>. The Promise exists immediately; its value doesn't.</p>
+    </details>
+
+    <div class="block">
+      <div class="block-label">Do</div>
+      <ul class="do-list">
+        <li><span class="step-pill">A3</span><span>Type step A3. In the Console run <code>const p = takeOrder("Pili Latte"); p</code>, wait, then type <code>p</code> again. Watch it go from pending to fulfilled. Do the guide's break-it: remove <code>resolve</code> and see it stay pending forever.</span></li>
+        <li><span class="step-pill">A4</span><span>Type step A4. Order both drinks with the <b>.then()</b> button. Then do the break-it: put braces on the first <code>.then</code> without <code>return</code>.</span></li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Check yourself</div>
+      <div class="quiz" data-quiz="l3"></div>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l3" data-done="l3"><label for="done-l3">I finished Lesson 3</label></div>
+  </section>
+
+  <!-- ===================== LESSON 4 ===================== -->
+  <section class="lesson" id="await">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 4</span>
+      <h2>async / await: Promises that read like normal code</h2>
+      <div class="lesson-meta"><span>About 35 min</span><span>Code-along steps A5–A6</span></div>
+      <p class="goals">By the end you can rewrite a <code>.then()</code> chain with <code>async</code>/<code>await</code> and <code>try</code>/<code>catch</code>, and run independent jobs together with <code>Promise.all</code>.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Watch</div>
+      <div class="videos">
+        <a class="video" href="https://www.youtube.com/watch?v=9j1dZwFEJ-c" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">JavaScript ASYNC/AWAIT is easy!</span><br><span class="video-sub">Bro Code</span></span>
+          <span class="tag main">Main</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=CWjNefiE47Y" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">Asynchronous JavaScript Tutorial #10: Async &amp; Await</span><br><span class="video-sub">Net Ninja</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · Same order, two ways</div>
+<pre class="code">// with .then()
+takeOrder(drink)
+  .then((d) => brew(d))
+  .then((cup) => serve(cup))
+  .catch((e) => show(e.message))
+  .finally(() => setBusy(false));
+
+// with async / await
+async function placeOrder(drink) {
+  try {
+    const d = await takeOrder(drink);   // wait, then give me the value
+    const cup = await brew(d);
+    await serve(cup);
+  } catch (e) {
+    show(e.message);                     // a rejected Promise lands here
+  } finally {
+    setBusy(false);
+  }
+}</pre>
+      <ul>
+        <li><code>await</code> waits for a Promise and gives you its value.</li>
+        <li><code>await</code> only works inside a function marked <code>async</code>.</li>
+        <li><code>await</code> pauses <b>that function</b>, not the page. Other code and clicks keep running.</li>
+      </ul>
+      <div class="demo" data-demo="await">
+        <div class="demo-bar"><span class="demo-title">await pauses the function, not the page</span><button type="button">Run</button></div>
+<pre class="code">placeOrder("Iced Mocha");
+console.log("placeOrder() was called; the page is still free");</pre>
+        <ol class="console"><li class="hint">Watch where the second line appears.</li></ol>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · Promise.all: three baristas</div>
+      <p>If jobs don't depend on each other, start them all and wait for all of them. <code>Promise.all</code> takes as long as the slowest job, not the total.</p>
+<pre class="code">for (const d of orders) { await brew(d); }                    // one at a time
+const cups = await Promise.all(orders.map((d) => brew(d)));   // all at once</pre>
+      <div class="demo" data-demo="all">
+        <div class="demo-bar"><span class="demo-title">One at a time vs. Promise.all</span><button type="button">Run</button></div>
+        <ol class="console"><li class="hint">Each brew takes 1 s here (2 s in the code-along).</li></ol>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Do</div>
+      <ul class="do-list">
+        <li><span class="step-pill">A5</span><span>Type step A5 and use the <b>async/await</b> button. Break-it: remove the <code>await</code> before <code>takeOrder</code> and read the log ("[object Promise]").</span></li>
+        <li><span class="step-pill">A6</span><span>Type step A6 and press <b>Rush hour</b>. Write down your two times. Challenge: try <code>Promise.allSettled</code> with Ube Latte in the list.</span></li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Check yourself</div>
+      <div class="quiz" data-quiz="l4"></div>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l4" data-done="l4"><label for="done-l4">I finished Lesson 4</label></div>
+  </section>
+
+  <!-- ===================== LESSON 5 ===================== -->
+  <section class="lesson" id="fetch">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 5</span>
+      <h2>fetch(): getting real data</h2>
+      <div class="lesson-meta"><span>About 45 min</span><span>Code-along steps B1–B5</span></div>
+      <p class="goals">By the end you can load a JSON file with <code>fetch</code>, check <code>response.ok</code>, show loading and error messages, and call a public API.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Watch</div>
+      <div class="videos">
+        <a class="video" href="https://www.youtube.com/watch?v=37vxWr0WgQk" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">How to FETCH data from an API using JavaScript</span><br><span class="video-sub">Bro Code</span></span>
+          <span class="tag main">Main</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=cuEtnrL9-H0" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">Learn Fetch API In 6 Minutes</span><br><span class="video-sub">Web Dev Simplified</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=drK6mdA9d_M" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">Asynchronous JavaScript Tutorial #9: The Fetch API</span><br><span class="video-sub">Net Ninja</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · From a URL to cards on the page</div>
+      <p><code>fetch(url)</code> returns a Promise for a <b>Response</b>. Reading its body with <code>.json()</code> returns another Promise, for the data. So there are two <code>await</code>s.</p>
+<pre class="code">async function loadEvents() {
+  statusText.textContent = "Loading events…";
+  try {
+    const response = await fetch("data/events.json");
+    if (!response.ok) {                                   // 404, 500, …
+      throw new Error("HTTP " + response.status);
+    }
+    const events = await response.json();               // a normal array
+    renderEvents(events);                                 // Week 11 DOM skills
+    statusText.textContent = events.length + " events loaded.";
+  } catch (error) {
+    statusText.textContent = "⚠ " + error.message;
+  }
+}</pre>
+      <div class="table-wrap">
+        <table>
+          <tr><th>You see</th><th>It means</th><th>Fix</th></tr>
+          <tr><td><code>HTTP 404</code></td><td>Wrong path or file name</td><td>Check spelling and folders. fetch does <b>not</b> reject on 404, so check <code>response.ok</code></td></tr>
+          <tr><td><code>blocked by CORS policy</code></td><td>Page opened as <code>file://</code></td><td>Open it with Live Server</td></tr>
+          <tr><td><code>Unexpected token</code> … <code>not valid JSON</code></td><td>The file isn't valid JSON, or you got an HTML error page</td><td>Double quotes on keys, no trailing comma; check the URL</td></tr>
+          <tr><td><code>Failed to fetch</code></td><td>No internet, or the server is down</td><td>Your <code>catch</code> should show a friendly message</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <details class="predict">
+      <summary>Predict: the file name is wrong. Which message shows, and why?</summary>
+<pre class="code">fetch("data/event.json")          // missing the "s"
+  .then((res) => res.json())
+  .then((data) => renderEvents(data))
+  .catch((err) => show("Error: " + err.message));</pre>
+      <p><b>Answer:</b> fetch itself succeeds (the server answered, with a 404), so the first <code>.then</code> runs. <code>res.json()</code> then fails because the 404 page is HTML, not JSON, so <code>.catch</code> shows a confusing "Unexpected token" message. Checking <code>res.ok</code> first turns it into a clear "HTTP 404".</p>
+    </details>
+
+    <div class="block">
+      <div class="block-label">Do</div>
+      <ul class="do-list">
+        <li><span class="step-pill">B1</span><span>Open <code>fetch-explorer/</code> with Live Server. Type B1 and find <code>events.json</code> in the <b>Network</b> tab.</span></li>
+        <li><span class="step-pill">B2</span><span>Render the 5 event cards.</span></li>
+        <li><span class="step-pill">B3</span><span>Add loading and error messages. Break-it: rename the URL to <code>data/event.json</code>.</span></li>
+        <li><span class="step-pill">B4</span><span>Rewrite it with <code>async</code>/<code>await</code>. Try DevTools → Network → <b>Slow 3G</b>.</span></li>
+        <li><span class="step-pill">B5</span><span>Search the PokéAPI: <code>pikachu</code>, <code>25</code>, then a name that doesn't exist.</span></li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Check yourself</div>
+      <div class="quiz" data-quiz="l5"></div>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l5" data-done="l5"><label for="done-l5">I finished Lesson 5</label></div>
+  </section>
+
+  <!-- ===================== LESSON 6 ===================== -->
+  <section class="lesson" id="lab">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 6</span>
+      <h2>Lab: load your portfolio projects from JSON</h2>
+      <div class="lesson-meta"><span>About 60 min</span><span>40 points</span></div>
+      <p class="goals">Use your own portfolio. If yours is missing or broken, use <code>portfolio-lab/</code> from the starter (Weeks 8 and 11 already done).</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Task</th><th>What to do</th><th>Points</th></tr>
+        <tr><td>1 · <code>loadJSON(url)</code></td><td>Write a reusable <code>async</code> function that fetches, checks <code>response.ok</code> (throws an Error if not), and returns the parsed JSON.</td><td>10</td></tr>
+        <tr><td>2 · Projects from JSON</td><td>Move your Week 11 <code>projects</code> array into <code>data/projects.json</code>. On <code>projects.html</code>, show "Loading projects…", build the cards, and show a friendly error if loading fails. Filter buttons must still work.</td><td>15</td></tr>
+        <tr><td>3 · Featured project</td><td>Mark one project <code>"featured": true</code>. On <code>index.html</code>, reuse <code>loadJSON</code> and <code>.find()</code> to show it in <code>#featured</code>.</td><td>10</td></tr>
+        <tr><td>4 · Evidence</td><td>Screenshots of the loading message (Slow 3G), the error message, and the working page. Commit and push: <code>Week 12: load projects from JSON</code>.</td><td>5</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Submit in Google Classroom</div>
+      <ul>
+        <li>Your GitHub repository link</li>
+        <li>The three screenshots from Task 4</li>
+        <li>A short reflection, 3–5 sentences each:
+          <ol>
+            <li>In your own words, what is a callback? Give one you used this week.</li>
+            <li>Which bug did you hit (missing <code>await</code>, missing <code>return</code>, 404, CORS…)? How did you find it?</li>
+            <li>Where could your final web project use <code>fetch</code>?</li>
+          </ol>
+        </li>
+      </ul>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l6" data-done="l6"><label for="done-l6">I submitted the lab</label></div>
+  </section>
+
+  <section class="deeper">
+    <h2>Go deeper (optional)</h2>
+    <div class="videos">
+      <a class="video" href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank" rel="noopener">
+        <span class="play" aria-hidden="true"></span>
+        <span><span class="video-title">What the heck is the event loop anyway?</span><br><span class="video-sub">Philip Roberts · JSConf EU · the classic talk on how callbacks wait their turn</span></span>
+        <span class="tag opt">Talk</span>
+      </a>
+      <a class="video" href="https://www.youtube.com/watch?v=PoRJizFvM7s" target="_blank" rel="noopener">
+        <span class="play" aria-hidden="true"></span>
+        <span><span class="video-title">Async JS Crash Course: Callbacks, Promises, Async Await</span><br><span class="video-sub">Traversy Media · everything in this module in one sitting</span></span>
+        <span class="tag opt">Review</span>
+      </a>
+      <a class="video" href="https://www.youtube.com/watch?v=ZYb_ZU8LNxs" target="_blank" rel="noopener">
+        <span class="play" aria-hidden="true"></span>
+        <span><span class="video-title">Asynchronous JavaScript Course (Async/Await, Promises, Callbacks)</span><br><span class="video-sub">freeCodeCamp.org · longer course for extra practice</span></span>
+        <span class="tag opt">Course</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>WS1 · Web Systems and Technologies · BSIT · College of Engineering and Computational Sciences, Partido State University. Your progress checkmarks are saved in this browser only.</footer>
+</div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- tiny highlighter: comments and strings in code blocks ----------
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function highlightLine(line) {
+    let out = "", i = 0, q = null, buf = "";
+    while (i < line.length) {
+      const ch = line[i];
+      if (q) {
+        buf += ch;
+        if (ch === "\\" && i + 1 < line.length) { buf += line[i + 1]; i += 2; continue; }
+        if (ch === q) { out += '<span class="s">' + esc(buf) + "</span>"; buf = ""; q = null; }
+        i++; continue;
+      }
+      if (ch === '"' || ch === "'" || ch === "`") { out += esc(buf); buf = ch; q = ch; i++; continue; }
+      if (ch === "/" && line[i + 1] === "/") { out += esc(buf) + '<span class="c">' + esc(line.slice(i)) + "</span>"; return out; }
+      buf += ch; i++;
+    }
+    return out + (q ? '<span class="s">' + esc(buf) + "</span>" : esc(buf));
+  }
+  document.querySelectorAll("pre.code").forEach(function (pre) {
+    pre.innerHTML = pre.textContent.split("\n").map(highlightLine).join("\n");
+  });
+
+  // ---------- run demos ----------
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  function makeLogger(list) {
+    const t0 = performance.now();
+    list.innerHTML = "";
+    return function (msg, cls) {
+      const li = document.createElement("li");
+      const t = document.createElement("span");
+      t.className = "t";
+      t.textContent = "+" + ((performance.now() - t0) / 1000).toFixed(1) + "s  ";
+      const m = document.createElement("span");
+      if (cls) m.className = cls;
+      m.textContent = msg;
+      li.append(t, m);
+      list.appendChild(li);
+    };
+  }
+  const SOLD_OUT = ["Ube Latte"];
+
+  const demos = {
+    nowLater: function (log) {
+      log("A");
+      [1, 2].forEach((n) => log(String(n)));
+      setTimeout(() => log("B", "ok"), 0);
+      log("C");
+      return wait(50);
+    },
+    parens: function (log) {
+      function sayHi(label) { log("Hi! (" + label + ")"); }
+      log("setTimeout(sayHi, 1000) scheduled");
+      setTimeout(() => sayHi("passed: ran after 1 s"), 1000);
+      log("setTimeout(sayHi(), 1000) scheduled");
+      sayHi("called with (): ran immediately");
+      return wait(1200).then(() => log("The second timer had nothing to run: it was given undefined.", "err"));
+    },
+    hell: function (log, root) {
+      const drink = root.querySelector("select").value;
+      return new Promise((done) => {
+        log("Taking order: " + drink);
+        setTimeout(() => {
+          const err = SOLD_OUT.includes(drink) ? "Sorry, " + drink + " is sold out" : null;
+          if (err) { log(err, "err"); done(); return; }
+          log("Brewing " + drink + "…");
+          setTimeout(() => {
+            log("Serving " + drink + " ☕");
+            setTimeout(() => { log("Order complete!", "ok"); done(); }, 400);
+          }, 800);
+        }, 400);
+      });
+    },
+    promise: function (log, root) {
+      const drink = root.querySelector("select").value;
+      const takeOrder = (d) => new Promise((res, rej) => {
+        log("Taking order: " + d);
+        setTimeout(() => SOLD_OUT.includes(d) ? rej(new Error("Sorry, " + d + " is sold out")) : res(d), 400);
+      });
+      const brew = (d) => new Promise((res) => { log("Brewing " + d + "…"); setTimeout(() => res(d + " ☕"), 800); });
+      const serve = (c) => new Promise((res) => setTimeout(() => { log("Served: " + c); res(c); }, 400));
+      return takeOrder(drink)
+        .then((d) => brew(d))
+        .then((c) => serve(c))
+        .then(() => log("Order complete!", "ok"))
+        .catch((e) => log(".catch → " + e.message, "err"))
+        .finally(() => log(".finally → buttons enabled again"));
+    },
+    await: function (log) {
+      async function placeOrder(d) {
+        log("placeOrder: taking order…");
+        await wait(400);
+        log("placeOrder: brewing " + d + "…");
+        await wait(800);
+        log("placeOrder: served " + d + " ☕", "ok");
+      }
+      const p = placeOrder("Iced Mocha");
+      log("placeOrder() was called; the page is still free");
+      return p;
+    },
+    all: async function (log) {
+      const orders = ["Barako", "Pili Latte", "Iced Mocha"];
+      const brew = (d) => new Promise((res) => { log("  brewing " + d + "…"); setTimeout(() => res(d), 1000); });
+      log("One at a time:");
+      let s = performance.now();
+      for (const d of orders) { await brew(d); }
+      log("One at a time took " + ((performance.now() - s) / 1000).toFixed(1) + " s", "err");
+      log("Promise.all:");
+      s = performance.now();
+      await Promise.all(orders.map((d) => brew(d)));
+      log("Promise.all took " + ((performance.now() - s) / 1000).toFixed(1) + " s", "ok");
+    },
+  };
+
+  document.querySelectorAll(".demo").forEach(function (root) {
+    const btn = root.querySelector("button");
+    const list = root.querySelector(".console");
+    btn.addEventListener("click", function () {
+      const fn = demos[root.dataset.demo];
+      if (!fn) return;
+      btn.disabled = true;
+      const log = makeLogger(list);
+      Promise.resolve(fn(log, root)).finally(function () { btn.disabled = false; btn.textContent = "Run again"; });
+    });
+  });
+
+  // ---------- quizzes ----------
+  const quizzes = {
+    l1: [
+      { q: "What is a callback?", o: ["A function that calls itself", "A function you pass to another function so it can call it", "A function that returns a Promise", "A special keyword for timers"], a: 1, e: "You hand the function over; the other function decides when to call it." },
+      { q: "What does setTimeout(sayHi(), 1000) do?", o: ["Says hi after 1 second", "Says hi twice", "Runs sayHi right away, then gives setTimeout undefined", "Throws a syntax error"], a: 2, e: "The () calls sayHi immediately. Pass sayHi (no parentheses) or () => sayHi()." },
+      { q: "Which callback runs right away, before the next line?", o: ["The one in forEach", "The one in setTimeout(…, 0)", "The one in addEventListener", "All of them"], a: 0, e: "forEach calls its callback synchronously, once per item. Timers and events call theirs later." },
+      { q: "console.log(1); setTimeout(() => console.log(2), 0); console.log(3); prints…", o: ["1 2 3", "1 3 2", "2 1 3", "3 2 1"], a: 1, e: "Even a 0 ms timer waits until the current code is finished." },
+    ],
+    l2: [
+      { q: "Why does the callback version of the order get nested?", o: ["Callbacks must always be nested", "Each step can only start inside the callback of the step before it", "setTimeout requires it", "To make the code faster"], a: 1, e: "Brewing needs the confirmed order, so it has to go inside takeOrder's callback, and so on." },
+      { q: "In an error-first callback (error, result) => {…}, what is error when everything worked?", o: ["undefined is not allowed", "An empty string", "null", "The result"], a: 2, e: "By convention the first argument is null when there was no error." },
+      { q: "Which is NOT a problem with callback hell?", o: ["Code drifts to the right", "Every level repeats an error check", "Steps are hard to reorder", "It can't wait for timers"], a: 3, e: "Callbacks wait for timers fine. The problems are readability and repeated error handling." },
+    ],
+    l3: [
+      { q: "What are the three states of a Promise?", o: ["start, run, stop", "pending, fulfilled, rejected", "waiting, done, error", "open, resolved, closed"], a: 1, e: "Every Promise starts pending, then becomes fulfilled or rejected, once." },
+      { q: "Inside new Promise((resolve, reject) => …), what makes the Promise fulfilled?", o: ["return value", "resolve(value)", "reject(value)", "await value"], a: 1, e: "resolve(value) fulfills it; reject(error) rejects it." },
+      { q: "A step written .then((drink) => { brew(drink); }) causes what?", o: ["Nothing; it works", "A syntax error", "The chain doesn't wait for brew; the next step gets undefined", "brew runs twice"], a: 2, e: "With braces you must return the Promise: { return brew(drink); }." },
+      { q: "One .catch() at the end of a chain catches…", o: ["Only errors from the last .then", "Errors from any step before it", "Only network errors", "Nothing; each .then needs its own"], a: 1, e: "A rejection skips the remaining .then steps and lands in the first .catch below it." },
+    ],
+    l4: [
+      { q: "Where can you use await?", o: ["Anywhere", "Only inside a function marked async (or at the top level of a module)", "Only inside .then()", "Only with setTimeout"], a: 1, e: "In a normal script, await must be inside an async function." },
+      { q: "You forgot await: const d = takeOrder(drink); What is d?", o: ["The drink name", "undefined", "A Promise", "An Error"], a: 2, e: "Without await you get the Promise itself, which shows up as [object Promise]." },
+      { q: "With await, how do you handle a rejected Promise?", o: ["if (error)", "try / catch", ".then only", "You can't"], a: 1, e: "A rejected Promise becomes a thrown error inside the async function, so try/catch catches it." },
+      { q: "Three 2-second brews with Promise.all take about…", o: ["6 seconds", "2 seconds", "0 seconds", "4 seconds"], a: 1, e: "They run at the same time, so the total is about the slowest one." },
+    ],
+    l5: [
+      { q: "fetch() gets a 404 response. What happens on its own?", o: ["The Promise rejects and .catch runs", "The Promise fulfills; response.ok is false", "The page reloads", "JavaScript stops"], a: 1, e: "fetch only rejects when there is no response at all. Check response.ok and throw yourself." },
+      { q: "Why are there two awaits: fetch(url) and response.json()?", o: ["One is for safety", "Reading the body is also asynchronous", "json() needs a timer", "There should only be one"], a: 1, e: "fetch resolves when the headers arrive; reading and parsing the body is a second async step." },
+      { q: "You double-clicked index.html and fetch fails with a CORS error. Fix?", o: ["Add async to the function", "Open the page with Live Server", "Rename the JSON file", "Use XMLHttpRequest"], a: 1, e: "Browsers block fetch from file:// pages. Serve the folder (Live Server, later a PHP server)." },
+      { q: "Which is valid JSON?", o: ["{ title: 'Kape' }", "{ \"title\": \"Kape\", }", "{ \"title\": \"Kape\" }", "{ 'title': \"Kape\" }"], a: 2, e: "JSON needs double quotes on keys and strings, and no trailing comma." },
+    ],
+  };
+
+  document.querySelectorAll(".quiz").forEach(function (box) {
+    const set = quizzes[box.dataset.quiz] || [];
+    set.forEach(function (item, qi) {
+      const wrap = document.createElement("div");
+      wrap.className = "q";
+      const fs = document.createElement("fieldset");
+      const lg = document.createElement("legend");
+      lg.textContent = (qi + 1) + ". " + item.q;
+      fs.appendChild(lg);
+      const name = box.dataset.quiz + "-q" + qi;
+      item.o.forEach(function (text, oi) {
+        const id = name + "-o" + oi;
+        const label = document.createElement("label");
+        label.className = "opt";
+        label.htmlFor = id;
+        const input = document.createElement("input");
+        input.type = "radio"; input.name = name; input.id = id; input.value = String(oi);
+        const span = document.createElement("span");
+        span.textContent = text;
+        label.append(input, span);
+        fs.appendChild(label);
+      });
+      const fb = document.createElement("div");
+      fb.className = "feedback";
+      fb.hidden = true;
+      fb.setAttribute("aria-live", "polite");
+      fs.addEventListener("change", function (ev) {
+        const right = Number(ev.target.value) === item.a;
+        fb.hidden = false;
+        fb.className = "feedback " + (right ? "right" : "wrong");
+        fb.innerHTML = "";
+        const b = document.createElement("b");
+        b.textContent = right ? "Correct. " : "Not quite. ";
+        const s = document.createElement("span");
+        s.textContent = item.e;
+        fb.append(b, s);
+      });
+      wrap.append(fs, fb);
+      box.appendChild(wrap);
+    });
+  });
+
+  // ---------- progress (this browser only) ----------
+  const KEY = "ws1-week12-module-progress";
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+  const boxes = document.querySelectorAll("[data-done]");
+  function render() {
+    let n = 0;
+    boxes.forEach(function (cb) {
+      const id = cb.dataset.done;
+      cb.checked = !!state[id];
+      if (state[id]) n++;
+      const tick = document.querySelector('.nav a[data-lesson="' + id + '"] .tick');
+      if (tick) tick.hidden = !state[id];
+    });
+    document.getElementById("progressFill").style.width = (n / boxes.length * 100) + "%";
+    document.getElementById("progressLabel").textContent = n + " of " + boxes.length + " lessons done";
+  }
+  boxes.forEach(function (cb) {
+    cb.addEventListener("change", function () {
+      state[cb.dataset.done] = cb.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable: progress lasts this visit only */ }
+      render();
+    });
+  });
+  render();
+})();
+</script>
+</body></html>
