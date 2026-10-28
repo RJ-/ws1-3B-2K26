@@ -262,6 +262,34 @@ pre.code .tk-p { color: #d4d4d4; }
   background: linear-gradient(transparent, rgba(0,0,0,0.75)); color: #ffffff; font-weight: 600; font-size: 0.95rem;
 }
 .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ---------- Lesson 0: freeze demo + event loop stepper ---------- */
+.freeze { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.freeze-body { padding: 14px 16px; display: grid; gap: 10px; background: var(--surface); }
+.freeze-hint { color: var(--muted); font-size: 0.95rem; }
+.freeze-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.freeze-status { font-weight: 600; color: var(--heading); }
+.el { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); display: grid; }
+.el .ide { border: none; border-radius: 0; }
+pre.code .line.hl { background: rgba(232, 163, 61, 0.2); box-shadow: inset 3px 0 #e8a33d; }
+.el-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+.el-box { background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 104px; display: grid; align-content: start; gap: 8px; min-width: 0; }
+.el-box h4 { margin: 0; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.el-stack { border-color: var(--heading); }
+.el-web { border-color: #1c7293; }
+.el-queue { border-color: var(--amber); }
+.el-out { border-color: #6a9955; }
+.el-items { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.el-stack .el-items { flex-direction: column-reverse; }
+.el-item { font-family: var(--font-mono); font-size: 0.78rem; background: var(--chip); color: var(--ink); border-radius: 6px; padding: 5px 8px; overflow-wrap: anywhere; }
+.el-item.new { outline: 2px solid var(--amber); }
+.el-empty { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+.el-loop { margin: 0 12px; padding: 8px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); font-size: 0.88rem; font-weight: 600; }
+.el-loop.active { background: var(--accent-bg); color: var(--accent); }
+.el-note { padding: 10px 14px 0; min-height: 3.2em; }
+.el-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px 14px; }
+.el-count { margin-left: auto; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .el-grid { grid-template-columns: 1fr; } }
 </style>
 </head><body>
 
@@ -269,17 +297,18 @@ pre.code .tk-p { color: #d4d4d4; }
   <div class="wrap">
     <div class="kicker">WS1 · Week 12 · Self-paced module</div>
     <h1>Async JavaScript, Part 2</h1>
-    <p>In class we got as far as callbacks. Here you'll pick up there: callbacks again, more slowly, then callback hell, Promises, async/await, and loading data with fetch(). Each lesson goes in the same order: <b>watch, read, try, do, check</b>.</p>
-    <p>Time: about 4 hours in total. Split it over the week, one or two lessons per sitting.</p>
+    <p>Callbacks, callback hell, Promises, async/await, and loading data with fetch(). <b>Start at Lesson 0</b> if your class hasn't discussed synchronous vs. asynchronous code and the event loop yet. If you covered it in class, start at Lesson 1. Each lesson goes in the same order: <b>watch, read, try, do, check</b>.</p>
+    <p>Time: about 4 to 5 hours in total. Split it over the week, one or two lessons per sitting.</p>
     <div class="progress" aria-live="polite">
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-label" id="progressLabel">0 of 6 lessons done</div>
+      <div class="progress-label" id="progressLabel">0 of 7 lessons done</div>
     </div>
   </div>
 </header>
 
 <nav class="nav" aria-label="Lessons">
   <div class="wrap">
+    <a href="#sync-async" data-lesson="l0">0 · Sync vs. async <span class="tick" hidden>✓</span></a>
     <a href="#callbacks" data-lesson="l1">1 · Callbacks <span class="tick" hidden>✓</span></a>
     <a href="#callback-hell" data-lesson="l2">2 · Callback hell <span class="tick" hidden>✓</span></a>
     <a href="#promises" data-lesson="l3">3 · Promises <span class="tick" hidden>✓</span></a>
@@ -301,6 +330,154 @@ pre.code .tk-p { color: #d4d4d4; }
       <li>The grey <b>Run</b> boxes on this page are live: click them and watch the output appear in order.</li>
       <li>Stuck on a step? Copy the matching file from <code>checkpoints/</code> over your <code>script.js</code>, then post your question in the Classroom stream.</li>
     </ul>
+  </section>
+
+  <!-- ===================== LESSON 0 ===================== -->
+  <section class="lesson" id="sync-async">
+    <div class="lesson-head">
+      <span class="lesson-num">LESSON 0</span>
+      <h2>Synchronous vs. asynchronous, and the event loop</h2>
+      <div class="lesson-meta"><span>About 40 min</span><span>Warm-up Parts 1–3</span></div>
+      <p class="goals">By the end you can explain the difference between synchronous and asynchronous code, say why a long loop freezes a page, and use the call stack, the browser, the task queue, and the event loop to predict the order of output.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Watch</div>
+      <div class="videos">
+        <a class="video" href="https://www.youtube.com/watch?v=ZcQyJ-gxke0" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">Asynchronous JavaScript Tutorial #1: What is Async JavaScript?</span><br><span class="video-sub">Net Ninja · watch this first</span></span>
+          <span class="tag main">Main</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=eiC58R16hb8" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">JavaScript Visualized: Event Loop, Web APIs, (Micro)task Queue</span><br><span class="video-sub">Lydia Hallie · animated, watch after reading section 3</span></span>
+          <span class="tag main">Main</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">What the heck is the event loop anyway?</span><br><span class="video-sub">Philip Roberts · JSConf EU · the classic talk, about 26 minutes</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+        <a class="video" href="https://www.youtube.com/watch?v=28AXSTCpsyU" target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span><span class="video-title">JavaScript Under The Hood [3]: Asynchronous JavaScript, Task Queue &amp; Event Loop</span><br><span class="video-sub">Traversy Media</span></span>
+          <span class="tag opt">Optional</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 1. Two ways to serve a line of customers</div>
+      <p>Picture a café with one cashier. A <b>synchronous</b> cashier takes your order, makes your coffee, hands it over, and only then serves the next person. An <b>asynchronous</b> cashier takes your order, gives you a number, passes the order to the barista, and serves the next person right away. When your coffee is ready, your number is called.</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th></th><th>Synchronous</th><th>Asynchronous</th></tr>
+          <tr><td><b>Meaning</b></td><td>Each step waits until the one before it is finished</td><td>Start a slow job, keep going, handle the result later</td></tr>
+          <tr><td><b>Café</b></td><td>The cashier waits for every coffee</td><td>You get a number; it's called when ready</td></tr>
+          <tr><td><b>JavaScript</b></td><td><code>console.log</code>, math, loops, most lines</td><td><code>setTimeout</code>, clicks, <code>fetch()</code></td></tr>
+          <tr><td><b>If the job is slow</b></td><td>Everything behind it waits</td><td>Everything else keeps running</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 2. JavaScript has one thread</div>
+      <p>JavaScript runs your code <b>one line at a time</b>, on one <b>thread</b> (one worker). Normal code is synchronous: line 2 starts only after line 1 is done.</p>
+<pre class="code">console.log("Taking order");
+const total = 120 + 45;          // runs after the line above
+console.log("Total: " + total);  // runs after the line above</pre>
+      <p>That is fine for fast lines. But if one line takes 3 seconds, the thread is busy for 3 seconds and <b>nothing else can happen</b>: no clicks, no typing, not even redrawing the page. This is called <b>blocking</b>.</p>
+<pre class="code">// BLOCKING: keeps the one thread busy for 3 seconds
+const end = Date.now() + 3000;
+while (Date.now() &lt; end) {
+  // doing nothing, very busily
+}
+
+// NON-BLOCKING: the browser waits; JavaScript keeps going
+setTimeout(() => {
+  console.log("3 seconds later");
+}, 3000);</pre>
+      <div class="freeze" id="freezeDemo">
+        <div class="demo-bar"><span class="demo-title">Try it on this page</span></div>
+        <div class="freeze-body">
+          <p class="freeze-hint">Click <b>Freeze 2 s</b>, then try to click the counter. Then do the same with <b>Wait 2 s</b>.</p>
+          <div class="freeze-row">
+            <button type="button" id="frzCount" class="ghost">Click me (0)</button>
+            <button type="button" id="frzBlock">Freeze 2 s</button>
+            <button type="button" id="frzWait">Wait 2 s</button>
+          </div>
+          <p class="freeze-status" id="frzStatus" aria-live="polite">Ready.</p>
+        </div>
+      </div>
+      <p>With <b>Freeze</b>, the whole page stops: the counter doesn't move, and the "Freezing…" message never even appears. Your clicks wait in line and all count at once when the loop ends. With <b>Wait</b>, the browser does the waiting, so the page never stops.</p>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Read · 3. The event loop</div>
+      <p>So who does the waiting? The <b>browser</b>. When JavaScript meets a slow job, it hands it off and moves on. Four parts work together:</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Part</th><th>What it does</th><th>Café</th></tr>
+          <tr><td><b>Call stack</b></td><td>The code running right now, one thing at a time</td><td>The cashier</td></tr>
+          <tr><td><b>Browser (Web APIs)</b></td><td>Waits for timers, clicks, and downloads</td><td>The barista</td></tr>
+          <tr><td><b>Task queue</b></td><td>Callbacks that are ready and waiting for their turn</td><td>Coffees on the counter, numbers waiting to be called</td></tr>
+          <tr><td><b>Event loop</b></td><td>When the stack is empty, moves the next task onto the stack</td><td>Calling the next number when the cashier is free</td></tr>
+        </table>
+      </div>
+      <div class="note"><p><strong>The one rule to remember:</strong> a callback from the queue runs <b>only when the call stack is empty</b>. That's why <code>setTimeout(…, 0)</code> still waits for every normal line to finish.</p></div>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Try it · Step through the event loop</div>
+      <div class="el" id="eventLoop">
+<pre class="code" data-file="order.js">console.log("1 · Order taken");
+setTimeout(() => {
+  console.log("2 · Coffee ready");
+}, 0);
+console.log("3 · Next customer");</pre>
+        <div class="el-grid">
+          <div class="el-box el-stack"><h4>Call stack</h4><div class="el-items" id="elStack"></div></div>
+          <div class="el-box el-web"><h4>Browser (Web APIs)</h4><div class="el-items" id="elWeb"></div></div>
+          <div class="el-box el-queue"><h4>Task queue</h4><div class="el-items" id="elQueue"></div></div>
+          <div class="el-box el-out"><h4>Console</h4><div class="el-items" id="elOut"></div></div>
+        </div>
+        <div class="el-loop" id="elLoop">Event loop: waiting for the stack to be empty</div>
+        <p class="el-note" id="elNote" aria-live="polite"></p>
+        <div class="el-controls">
+          <button type="button" class="ghost" id="elBack">← Back</button>
+          <button type="button" id="elNext">Next step →</button>
+          <button type="button" class="ghost" id="elReset">Start over</button>
+          <span class="el-count" id="elCount"></span>
+        </div>
+      </div>
+      <p>Lydia Hallie's video (above) also shows a second queue, the <b>microtask queue</b>, which Promises use. You'll meet Promises in Lesson 3; for now, the task queue is enough.</p>
+    </div>
+
+    <details class="predict">
+      <summary>Predict: in what order are the letters printed?</summary>
+<pre class="code">console.log("A");
+setTimeout(() => console.log("B"), 1000);
+setTimeout(() => console.log("C"), 0);
+console.log("D");</pre>
+      <p><b>Answer:</b> <code>A</code>, <code>D</code>, <code>C</code>, then <code>B</code> one second later. A and D are normal lines, so they run first. Both timers go to the browser. C's timer (0 ms) finishes first, so its callback reaches the queue first; it runs as soon as the stack is empty. B's callback joins the queue after 1 second.</p>
+    </details>
+
+    <div class="block">
+      <div class="block-label">Do</div>
+      <ul class="do-list">
+        <li><span class="step-pill">W1</span><span>Open <code>async-warmup/</code> with Live Server. Write your guess on paper, then type Part 1 (predict the order) and check it.</span></li>
+        <li><span class="step-pill">W2</span><span>Type Part 2 (freeze vs. wait) and try both buttons in your own page.</span></li>
+        <li><span class="step-pill">W3</span><span>Type Part 3 (a clock with <code>setInterval</code>). Remove the <code>if (timerId !== null) return;</code> line, click Start three times, then Stop. Can you explain what happens using the event loop?</span></li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="block-label">Check yourself</div>
+      <div class="quiz" data-quiz="l0"></div>
+    </div>
+
+    <div class="done-row"><input type="checkbox" id="done-l0" data-done="l0"><label for="done-l0">I finished Lesson 0</label></div>
   </section>
 
   <!-- ===================== LESSON 1 ===================== -->
@@ -416,7 +593,7 @@ console.log("end");</pre>
     <div class="block">
       <div class="block-label">Do</div>
       <ul class="do-list">
-        <li><span class="step-pill">W1–W3</span><span>If you missed the class demo, do the warm-up in <code>async-warmup/</code> first (Parts 1–3 in the guide).</span></li>
+        <li><span class="step-pill">W1–W3</span><span>Skipped Lesson 0? Do the warm-up in <code>async-warmup/</code> first (Parts 1–3 in the guide).</span></li>
         <li><span class="step-pill">A1</span><span>Open <code>kape-orders/</code>, type step A1, then paste the commented line into the Console. "Ready: Kapeng Barako ☕" should appear 2 seconds later.</span></li>
       </ul>
     </div>
@@ -813,11 +990,6 @@ const cups = await Promise.all(orders.map((d) => brew(d)));   // all at once</pr
   <section class="deeper">
     <h2>Go deeper (optional)</h2>
     <div class="videos">
-      <a class="video" href="https://www.youtube.com/watch?v=8aGhZQkoFbQ" target="_blank" rel="noopener">
-        <span class="play" aria-hidden="true"></span>
-        <span><span class="video-title">What the heck is the event loop anyway?</span><br><span class="video-sub">Philip Roberts · JSConf EU · the classic talk on how callbacks wait their turn</span></span>
-        <span class="tag opt">Talk</span>
-      </a>
       <a class="video" href="https://www.youtube.com/watch?v=PoRJizFvM7s" target="_blank" rel="noopener">
         <span class="play" aria-hidden="true"></span>
         <span><span class="video-title">Async JS Crash Course: Callbacks, Promises, Async Await</span><br><span class="video-sub">Traversy Media · everything in this module in one sitting</span></span>
@@ -1038,8 +1210,95 @@ const cups = await Promise.all(orders.map((d) => brew(d)));   // all at once</pr
     });
   });
 
+  // ---------- Lesson 0: freeze vs. wait on this page ----------
+  (function () {
+    const countBtn = document.getElementById("frzCount");
+    if (!countBtn) return;
+    const statusEl = document.getElementById("frzStatus");
+    let count = 0;
+    countBtn.addEventListener("click", function () { count++; countBtn.textContent = "Click me (" + count + ")"; });
+    document.getElementById("frzBlock").addEventListener("click", function () {
+      statusEl.textContent = "Freezing…";            // you never see this
+      const end = Date.now() + 2000;
+      while (Date.now() < end) { /* busy */ }
+      statusEl.textContent = "Done freezing. Did your clicks count while it was frozen?";
+    });
+    document.getElementById("frzWait").addEventListener("click", function () {
+      statusEl.textContent = "Waiting 2 s… keep clicking the counter!";
+      setTimeout(function () { statusEl.textContent = "Done waiting. The page never froze."; }, 2000);
+    });
+  })();
+
+  // ---------- Lesson 0: event loop stepper ----------
+  (function () {
+    const root = document.getElementById("eventLoop");
+    if (!root) return;
+    const CB = "() => { … }";
+    const steps = [
+      { line: [], stack: [], web: [], queue: [], out: [], loop: false,
+        note: "The script is about to start. Press Next step." },
+      { line: [0], stack: ['console.log("1 · Order taken")'], web: [], queue: [], out: ["1 · Order taken"], loop: false,
+        note: "Line 1 is normal (synchronous) code. It goes on the call stack, runs, and prints right away." },
+      { line: [1, 2, 3], stack: ["setTimeout(…, 0)"], web: ["⏱ timer 0 ms → " + CB], queue: [], out: ["1 · Order taken"], loop: false,
+        note: "setTimeout does not run the callback. It hands the timer and the callback to the browser, then finishes." },
+      { line: [], stack: [], web: [], queue: [CB], out: ["1 · Order taken"], loop: false,
+        note: "The 0 ms timer is done at once, so the browser puts the callback in the task queue. It must wait there for its turn." },
+      { line: [4], stack: ['console.log("3 · Next customer")'], web: [], queue: [CB], out: ["1 · Order taken", "3 · Next customer"], loop: false,
+        note: "Meanwhile the next normal line runs. The callback is still waiting in the queue." },
+      { line: [], stack: [], web: [], queue: [CB], out: ["1 · Order taken", "3 · Next customer"], loop: true,
+        note: "The script is finished and the call stack is empty. Now the event loop takes the first task from the queue." },
+      { line: [2], stack: [CB, 'console.log("2 · Coffee ready")'], web: [], queue: [], out: ["1 · Order taken", "3 · Next customer", "2 · Coffee ready"], loop: false,
+        note: "The callback runs on the stack, and its console.log prints the last line." },
+      { line: [], stack: [], web: [], queue: [], out: ["1 · Order taken", "3 · Next customer", "2 · Coffee ready"], loop: false,
+        note: "Done. The output is 1, 3, 2, because a callback from the queue only runs when the stack is empty." },
+    ];
+    let i = 0;
+    const lines = root.querySelectorAll("pre.code .line");
+    const el = (id) => document.getElementById(id);
+    function fill(box, items, prevItems, emptyText) {
+      box.innerHTML = "";
+      if (!items.length) {
+        const e = document.createElement("span");
+        e.className = "el-empty"; e.textContent = emptyText;
+        box.appendChild(e); return;
+      }
+      items.forEach(function (t) {
+        const d = document.createElement("div");
+        d.className = "el-item" + (prevItems.indexOf(t) === -1 ? " new" : "");
+        d.textContent = t;
+        box.appendChild(d);
+      });
+    }
+    function render() {
+      const st = steps[i], prev = steps[i - 1] || steps[0];
+      lines.forEach(function (ln, n) { ln.classList.toggle("hl", st.line.indexOf(n) !== -1); });
+      fill(el("elStack"), st.stack, i ? prev.stack : st.stack, "empty");
+      fill(el("elWeb"), st.web, i ? prev.web : st.web, "nothing waiting");
+      fill(el("elQueue"), st.queue, i ? prev.queue : st.queue, "empty");
+      fill(el("elOut"), st.out, i ? prev.out : st.out, "nothing printed yet");
+      const loop = el("elLoop");
+      loop.classList.toggle("active", st.loop);
+      loop.textContent = st.loop ? "Event loop: the stack is empty → move the next task onto the stack" : "Event loop: waiting for the stack to be empty";
+      el("elNote").textContent = st.note;
+      el("elCount").textContent = "Step " + i + " of " + (steps.length - 1);
+      el("elBack").disabled = i === 0;
+      el("elNext").disabled = i === steps.length - 1;
+    }
+    el("elNext").addEventListener("click", function () { if (i < steps.length - 1) { i++; render(); } });
+    el("elBack").addEventListener("click", function () { if (i > 0) { i--; render(); } });
+    el("elReset").addEventListener("click", function () { i = 0; render(); });
+    render();
+  })();
+
   // ---------- quizzes ----------
   const quizzes = {
+    l0: [
+      { q: "What does synchronous mean?", o: ["Code runs in random order", "Each step waits until the step before it is finished", "Code runs on many threads at once", "Code runs only after a delay"], a: 1, e: "Synchronous code runs one step after another; slow steps make everything behind them wait." },
+      { q: "A while loop keeps JavaScript busy for 3 seconds. What happens to the page?", o: ["Nothing; the page keeps working", "Only the loop slows down", "The page freezes: no clicks, typing, or redrawing until it ends", "The browser runs the loop in the background"], a: 2, e: "JavaScript has one thread. While it is busy, nothing else can run." },
+      { q: "A setTimeout timer has finished. Where does its callback wait?", o: ["On the call stack", "In the task queue", "Inside the timer forever", "In the Console"], a: 1, e: "The browser puts finished callbacks in the task queue, where they wait for their turn." },
+      { q: "When does the event loop move a callback from the queue to the call stack?", o: ["Immediately", "Every 1 second", "Only when the call stack is empty", "When the user clicks"], a: 2, e: "That's the one rule: queued callbacks run only when no other code is running." },
+      { q: "console.log(\"A\"); setTimeout(() => console.log(\"B\"), 1000); setTimeout(() => console.log(\"C\"), 0); console.log(\"D\"); prints…", o: ["A B C D", "A D B C", "A D C B", "A C D B"], a: 2, e: "A and D run first. C's 0 ms callback is queued first; B's arrives after 1 second." },
+    ],
     l1: [
       { q: "What is a callback?", o: ["A function that calls itself", "A function you pass to another function so it can call it", "A function that returns a Promise", "A special keyword for timers"], a: 1, e: "You hand the function over; the other function decides when to call it." },
       { q: "What does setTimeout(sayHi(), 1000) do?", o: ["Says hi after 1 second", "Says hi twice", "Runs sayHi right away, then gives setTimeout undefined", "Throws a syntax error"], a: 2, e: "The () calls sayHi immediately. Pass sayHi (no parentheses) or () => sayHi()." },
