@@ -1,0 +1,812 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Palabas Guided Assignment</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one reading column; sticky lesson chips; each lesson = watch → read → try → do → check */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #12263a;
+  --muted: #4f6272;
+  --line: #d6dee5;
+  --heading: #0b3d5c;
+  --accent: #a65a0c;
+  --accent-bg: #fbf0de;
+  --amber: #e8a33d;
+  --hero-bg: #082c43;
+  --hero-ink: #f5f3ee;
+  --hero-muted: #c3d2de;
+  --code-bg: #0f2233;
+  --code-ink: #e6edf3;
+  --code-com: #8fa7b8;
+  --code-str: #f2b555;
+  --good: #23683f;
+  --good-bg: #e5f2ea;
+  --bad: #a8352a;
+  --bad-bg: #f8e7e4;
+  --chip: #e6edf3;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1720; --surface: #13222e; --ink: #e3eaf0; --muted: #a2b2bf; --line: #26394a;
+    --heading: #9fd0ee; --accent: #f0b45a; --accent-bg: #2c2314; --amber: #e8a33d;
+    --hero-bg: #061f30; --hero-ink: #f5f3ee; --hero-muted: #b4c5d2;
+    --code-bg: #08131c; --code-ink: #e6edf3; --code-com: #8fa7b8; --code-str: #f2b555;
+    --good: #7fd3a1; --good-bg: #14291d; --bad: #f19488; --bad-bg: #33191a; --chip: #1c3040;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1720; --surface: #13222e; --ink: #e3eaf0; --muted: #a2b2bf; --line: #26394a;
+  --heading: #9fd0ee; --accent: #f0b45a; --accent-bg: #2c2314; --amber: #e8a33d;
+  --hero-bg: #061f30; --hero-ink: #f5f3ee; --hero-muted: #b4c5d2;
+  --code-bg: #08131c; --code-ink: #e6edf3; --code-com: #8fa7b8; --code-str: #f2b555;
+  --good: #7fd3a1; --good-bg: #14291d; --bad: #f19488; --bad-bg: #33191a; --chip: #1c3040;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--hero-bg);
+}
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { text-wrap: balance; color: var(--heading); line-height: 1.2; }
+h2 { font-size: 1.75rem; margin: 0; }
+h3 { font-size: 1.2rem; margin: 0; }
+p { margin: 0; }
+a { color: var(--heading); }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+/* ---------- hero ---------- */
+.hero { background: var(--hero-bg); color: var(--hero-ink); }
+.hero .wrap { padding-block: 40px 32px; display: grid; gap: 14px; }
+.kicker { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); }
+.hero h1 { color: var(--hero-ink); font-size: clamp(2rem, 5vw, 2.8rem); margin: 0; }
+.hero p { color: var(--hero-muted); max-width: 62ch; }
+.progress { display: grid; gap: 8px; margin-top: 8px; max-width: 520px; }
+.progress-track { height: 10px; border-radius: 99px; background: rgba(255,255,255,0.14); overflow: hidden; }
+.progress-fill { height: 100%; width: 0; background: var(--amber); transition: width 0.3s; }
+.progress-label { font-size: 0.9rem; color: var(--hero-muted); font-variant-numeric: tabular-nums; }
+
+/* ---------- lesson nav ---------- */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; gap: 8px; overflow-x: auto; padding-block: 10px; scrollbar-width: thin; }
+.nav a {
+  flex: none; text-decoration: none; font-size: 0.9rem; font-weight: 500;
+  padding: 6px 12px; border-radius: 99px; background: var(--chip); color: var(--ink);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav a .tick { color: var(--good); font-weight: 700; }
+
+main .wrap { display: grid; gap: 28px; padding-block: 28px 64px; }
+
+/* ---------- boxes ---------- */
+.start { background: var(--accent-bg); border-radius: 12px; padding: 20px 22px; display: grid; gap: 10px; }
+.start h2 { font-size: 1.25rem; }
+.start ul, .lesson ul, .lesson ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+
+.lesson { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px 26px; display: grid; gap: 22px; scroll-margin-top: 70px; }
+.lesson-head { display: grid; gap: 6px; }
+.lesson-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.9rem; color: var(--muted); }
+.lesson-num { font-family: var(--font-mono); font-weight: 700; color: var(--accent); font-size: 0.85rem; letter-spacing: 0.06em; }
+.goals { color: var(--muted); }
+
+.block { display: grid; gap: 12px; min-width: 0; }
+.block-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+
+.videos { display: grid; gap: 10px; }
+.video {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+  text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--bg);
+}
+.video:hover { border-color: var(--heading); }
+.play { width: 38px; height: 38px; border-radius: 50%; background: var(--heading); display: grid; place-items: center; }
+.play::before { content: ""; border-left: 12px solid var(--surface); border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+.video-title { font-weight: 600; line-height: 1.35; }
+.video-sub { font-size: 0.88rem; color: var(--muted); }
+.tag { font-size: 0.75rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.tag.main { background: var(--heading); color: var(--surface); }
+.tag.opt { background: var(--chip); color: var(--muted); }
+
+pre.code {
+  margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.6;
+}
+pre.code .c { color: var(--code-com); }
+pre.code .s { color: var(--code-str); }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+.table-wrap { overflow-x: auto; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.note { border-left: 4px solid var(--amber); background: var(--accent-bg); padding: 12px 16px; border-radius: 0 10px 10px 0; display: grid; gap: 6px; }
+.note.bad { border-left-color: var(--bad); background: var(--bad-bg); }
+.note strong { color: var(--ink); }
+
+/* ---------- run demos ---------- */
+.demo { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.demo-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: var(--chip); }
+.demo-bar .demo-title { font-weight: 600; font-size: 0.92rem; margin-right: auto; }
+button, select {
+  font: inherit; font-size: 0.9rem; border-radius: 8px; padding: 6px 14px; cursor: pointer;
+}
+button { border: none; background: var(--heading); color: var(--surface); font-weight: 600; }
+button:disabled { opacity: 0.55; cursor: progress; }
+button.ghost { background: transparent; color: var(--heading); border: 1px solid var(--heading); }
+select { border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.console {
+  margin: 0; min-height: 52px; background: var(--code-bg); color: var(--code-ink);
+  font-family: var(--font-mono); font-size: 0.84rem; padding: 12px 14px; list-style: none;
+  display: grid; gap: 2px; overflow-x: auto;
+}
+.console li { white-space: pre; }
+.console .t { color: var(--code-com); }
+.console .ok { color: #8fdcab; }
+.console .err { color: #f3a097; }
+.console .hint { color: var(--code-com); font-style: italic; }
+
+/* ---------- predict ---------- */
+details.predict { border: 1px dashed var(--line); border-radius: 10px; padding: 12px 16px; }
+details.predict summary { cursor: pointer; font-weight: 600; color: var(--heading); }
+details.predict[open] summary { margin-bottom: 8px; }
+
+/* ---------- do ---------- */
+.do-list { list-style: none; padding: 0 !important; display: grid; gap: 8px !important; }
+.do-list li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.step-pill { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; background: var(--accent-bg); color: var(--accent); padding: 2px 8px; border-radius: 6px; margin-top: 2px; }
+
+/* ---------- quiz ---------- */
+.quiz { display: grid; gap: 14px; }
+.q { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.q legend { font-weight: 600; padding: 0; }
+.q fieldset { border: none; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 0; }
+.opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.opt:hover { background: var(--chip); }
+.opt input { margin-top: 5px; accent-color: var(--heading); }
+.opt code { white-space: nowrap; }
+.feedback { font-size: 0.93rem; padding: 10px 12px; border-radius: 8px; }
+.feedback.right { background: var(--good-bg); color: var(--good); }
+.feedback.wrong { background: var(--bad-bg); color: var(--bad); }
+.feedback span { color: var(--ink); }
+
+.done-row { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 10px; background: var(--good-bg); }
+.done-row input { width: 22px; height: 22px; accent-color: var(--good); }
+.done-row label { font-weight: 600; cursor: pointer; }
+
+.deeper { display: grid; gap: 10px; }
+footer { color: var(--muted); font-size: 0.88rem; }
+
+@media (max-width: 560px) {
+  .lesson { padding: 22px 16px; }
+  .video { grid-template-columns: auto 1fr; }
+  .video .tag { grid-column: 2; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---------- IDE-style code blocks (VS Code Dark+) ---------- */
+.ide { border-radius: 10px; overflow: hidden; background: #1e1e1e; border: 1px solid #333333; min-width: 0; }
+.ide-bar { display: flex; align-items: flex-end; gap: 12px; background: #252526; padding: 0 10px 0 12px; min-height: 38px; }
+.ide-dots { display: flex; gap: 7px; align-self: center; }
+.ide-dots span { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.ide-dots span:nth-child(1) { background: #ff5f57; }
+.ide-dots span:nth-child(2) { background: #febc2e; }
+.ide-dots span:nth-child(3) { background: #28c840; }
+.ide-tab {
+  display: flex; align-items: center; gap: 7px; background: #1e1e1e; color: #ffffff;
+  font-family: var(--font-mono); font-size: 0.78rem; padding: 8px 14px 9px;
+  border-top: 2px solid #e8a33d;
+}
+.ide-tab .js { color: #f1e05a; font-weight: 700; font-size: 0.7rem; }
+.ide-copy {
+  margin-left: auto; align-self: center; background: transparent; color: #cccccc;
+  border: 1px solid #3c3c3c; border-radius: 6px; font-size: 0.75rem; padding: 3px 10px; font-weight: 500;
+}
+.ide-copy:hover { background: #2d2d2d; }
+pre.code {
+  background: #1e1e1e; color: #d4d4d4; border-radius: 0; padding: 12px 0 14px;
+  counter-reset: line; font-size: 0.85rem; line-height: 1.65; tab-size: 2;
+}
+.demo pre.code { border-radius: 0; }
+.note pre.code, details pre.code { border-radius: 0; }
+pre.code .line { display: block; padding-right: 18px; min-height: 1.65em; }
+pre.code .line::before {
+  counter-increment: line; content: counter(line); display: inline-block;
+  width: 2.6em; padding-right: 1.4em; text-align: right; color: #858585;
+  user-select: none; -webkit-user-select: none;
+}
+pre.code .tk-c { color: #6a9955; font-style: normal; }
+pre.code .tk-s { color: #ce9178; }
+pre.code .tk-n { color: #b5cea8; }
+pre.code .tk-k { color: #569cd6; }
+pre.code .tk-kc { color: #c586c0; }
+pre.code .tk-f { color: #dcdcaa; }
+pre.code .tk-v { color: #9cdcfe; }
+pre.code .tk-t { color: #4ec9b0; }
+pre.code .tk-p { color: #d4d4d4; }
+
+/* ---------- YouTube previews (play on the page) ---------- */
+.yt { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #0f2233; }
+.yt-poster {
+  position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: none; border-radius: 0;
+  background-color: #0f2233; background-size: cover; background-position: center; cursor: pointer;
+  display: grid; place-items: center;
+}
+.yt-poster:hover .yt-play { transform: scale(1.06); }
+.yt-play { width: 72px; height: 50px; border-radius: 14px; background: #e62117; display: grid; place-items: center; transition: transform 0.15s; box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
+.yt-play::before { content: ""; border-left: 20px solid #ffffff; border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 5px; }
+.yt-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 16px 12px; text-align: left;
+  background: linear-gradient(transparent, rgba(0,0,0,0.75)); color: #ffffff; font-weight: 600; font-size: 0.95rem;
+}
+.yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ---------- Lesson 0: freeze demo + event loop stepper ---------- */
+.freeze { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.freeze-body { padding: 14px 16px; display: grid; gap: 10px; background: var(--surface); }
+.freeze-hint { color: var(--muted); font-size: 0.95rem; }
+.freeze-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.freeze-status { font-weight: 600; color: var(--heading); }
+.el { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); display: grid; }
+.el .ide { border: none; border-radius: 0; }
+pre.code .line.hl { background: rgba(232, 163, 61, 0.2); box-shadow: inset 3px 0 #e8a33d; }
+.el-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+.el-box { background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 104px; display: grid; align-content: start; gap: 8px; min-width: 0; }
+.el-box h4 { margin: 0; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.el-stack { border-color: var(--heading); }
+.el-web { border-color: #1c7293; }
+.el-queue { border-color: var(--amber); }
+.el-out { border-color: #6a9955; }
+.el-items { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.el-stack .el-items { flex-direction: column-reverse; }
+.el-item { font-family: var(--font-mono); font-size: 0.78rem; background: var(--chip); color: var(--ink); border-radius: 6px; padding: 5px 8px; overflow-wrap: anywhere; }
+.el-item.new { outline: 2px solid var(--amber); }
+.el-empty { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+.el-loop { margin: 0 12px; padding: 8px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); font-size: 0.88rem; font-weight: 600; }
+.el-loop.active { background: var(--accent-bg); color: var(--accent); }
+.el-note { padding: 10px 14px 0; min-height: 3.2em; }
+.el-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px 14px; }
+.el-count { margin-left: auto; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .el-grid { grid-template-columns: 1fr; } }
+
+/* ---------- assignment additions ---------- */
+.lesson > *, .block > * { min-width: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--hero-ink); font-size: 0.95rem; }
+.facts span { background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 99px; }
+.rules { gap: 10px; }
+.rules ul { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+details.hint { border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; background: var(--bg); }
+details.hint summary { cursor: pointer; font-weight: 600; color: var(--heading); }
+details.hint[open] summary { margin-bottom: 10px; }
+details.hint p { margin: 0; }
+ul.checks { list-style: none; padding: 0 !important; display: grid; gap: 6px !important; }
+ul.checks li { position: relative; padding-left: 28px; }
+ul.checks li::before { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border: 2px solid var(--good); border-radius: 4px; }
+.lesson ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+</style>
+</head><body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">WS1 · Week 13 · Guided coding assignment</div>
+    <h1>Palabas: Build a TV Show Search App</h1>
+    <p>This week you'll build the TV show search app from our code-along, mostly on your own. Each task tells you what to build and how to check it. If you get stuck, open the hints one at a time.</p>
+    <div class="facts">
+      <span><b>Points:</b> 50</span>
+      <span><b>Due:</b> [day, date, time]</span>
+      <span><b>Time:</b> about 3–4 hours</span>
+      <span><b>Submit:</b> Google Classroom</span>
+    </div>
+    <div class="progress" aria-live="polite">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 of 8 parts done</div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Assignment parts">
+  <div class="wrap">
+    <a href="#setup" data-lesson="p0">Setup <span class="tick" hidden>✓</span></a>
+    <a href="#task1" data-lesson="p1">1 · First request <span class="tick" hidden>✓</span></a>
+    <a href="#task2" data-lesson="p2">2 · Search &amp; show <span class="tick" hidden>✓</span></a>
+    <a href="#task3" data-lesson="p3">3 · getJSON <span class="tick" hidden>✓</span></a>
+    <a href="#task4" data-lesson="p4">4 · Details <span class="tick" hidden>✓</span></a>
+    <a href="#task5" data-lesson="p5">5 · Promise.all <span class="tick" hidden>✓</span></a>
+    <a href="#extend" data-lesson="p6">Extend <span class="tick" hidden>✓</span></a>
+    <a href="#submit" data-lesson="p7">Reflect &amp; submit <span class="tick" hidden>✓</span></a>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+  <section class="start">
+    <h2>What you'll build</h2>
+    <p><b>Palabas</b> searches the free TVmaze API. Type a show's title and you get a grid of poster cards. Click a card and a pop-up shows the summary, cast, and number of seasons, loaded with three requests at once.</p>
+    <p>You'll practice everything from the async unit: <code>fetch</code>, <code>async</code>/<code>await</code>, <code>try</code>/<code>catch</code>, <code>response.ok</code>, handling errors, and <code>Promise.all</code>.</p>
+  </section>
+
+  <section class="lesson rules">
+    <h2>Rules for this assignment</h2>
+    <ul>
+      <li><b>Type your own code.</b> Read the task, try it first, then open <b>Hint 1</b>, then <b>Hint 2</b>. Open <b>Hint 3</b> only when you've been stuck for 20 minutes.</li>
+      <li><b>Explain every function.</b> Above each function you write, add a comment in your own words saying what it does. This is graded.</li>
+      <li><b>AI tools:</b> if you use an AI assistant, say in your reflection what you asked it and what you changed. Don't paste code you can't explain.</li>
+      <li><b>Ask early.</b> Post questions in the Classroom stream with a screenshot of your Console. Helping a classmate is welcome too.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== SETUP ===================== -->
+  <section class="lesson" id="setup">
+    <div class="lesson-head">
+      <span class="lesson-num">SETUP</span>
+      <h2>Get the starter files</h2>
+      <div class="lesson-meta"><span>10 min</span></div>
+    </div>
+    <ul class="do-list">
+      <li><span class="step-pill">1</span><span>Get the starter: <code>git pull</code> the class repo and copy the <code>js-tv-search/</code> folder into <b>your own</b> repository, or download <code>JS_TVSearch_CodeAlong_Starter.zip</code> from Classroom and use its <code>starter/</code> folder.</span></li>
+      <li><span class="step-pill">2</span><span>Open the folder in VS Code. Right-click <code>index.html</code> → <b>Open with Live Server</b>. Open DevTools (F12): <b>Console</b> and <b>Network</b>.</span></li>
+      <li><span class="step-pill">3</span><span>Read the top of <code>script.js</code>. The URL functions (<code>searchURL</code>, <code>showURL</code>, <code>castURL</code>, <code>seasonsURL</code>) and helpers (<code>el</code>, <code>setStatus</code>, <code>createPoster</code>, <code>yearRange</code>, <code>stripTags</code>) are given. You will <b>use</b> them, not change them.</span></li>
+      <li><span class="step-pill">4</span><span>Read <code>config.js</code>. Start in <b>sample mode</b> (<code>USE_SAMPLE_DATA = true</code>): it works offline with <code>friends</code>, <code>office</code>, <code>breaking bad</code>, <code>stranger things</code>, <code>sherlock</code>, <code>thrones</code>, or <code>sample</code> for all six.</span></li>
+    </ul>
+    <div class="note">
+      <p><strong>Live mode</strong> (<code>USE_SAMPLE_DATA = false</code>) searches every show on TVmaze, with no key needed. TVmaze allows about <b>20 requests every 10 seconds per internet connection</b>. Use live mode at home or on your own mobile data, not on shared lab Wi-Fi. Your final app must work in <b>both</b> modes.</p>
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-p0" data-done="p0"><label for="done-p0">My starter runs with Live Server</label></div>
+  </section>
+
+  <!-- ===================== TASK 1 ===================== -->
+  <section class="lesson" id="task1">
+    <div class="lesson-head">
+      <span class="lesson-num">TASK 1 · 5 POINTS</span>
+      <h2>Make your first API request</h2>
+      <div class="lesson-meta"><span>About 20 min</span><span>Under <code>// STEP 1</code> in script.js</span></div>
+    </div>
+    <div class="block">
+      <div class="block-label">Do this</div>
+      <p>Write an <code>async</code> function <code>testRequest()</code> that fetches <code>searchURL("friends")</code> and prints what came back, then call it.</p>
+    </div>
+    <div class="block">
+      <div class="block-label">Done when</div>
+      <ul class="checks">
+        <li>The Console shows the request URL, the status (<code>200</code>) and <code>response.ok</code></li>
+        <li>The Console shows the whole data array, its length, and the first show's <code>name</code> and <code>premiered</code></li>
+        <li>You found the request in the <b>Network</b> tab and opened its <b>Preview</b></li>
+      </ul>
+    </div>
+    <details class="hint"><summary>Hint 1 · The idea</summary>
+      <p>Two <code>await</code>s: one for <code>fetch(url)</code> (the response arrives), one for <code>response.json()</code> (the body is read). The data is an <b>array</b> of <code>{ score, show }</code> objects, so the first show's name is <code>data[0].show.name</code>.</p>
+    </details>
+    <details class="hint"><summary>Hint 2 · Fill in the blanks</summary>
+<pre class="code">async function testRequest() {
+  const url = searchURL("friends");
+  console.log("Request:", url);
+
+  const response = await ____(url);
+  console.log("Status:", response.status, "ok?", response.____);
+
+  const data = await response.____();
+  console.log(data);
+  console.log("How many:", data.____);
+  console.log("First show:", data[0].____.name, data[0].show.premiered);
+}
+
+testRequest();</pre>
+    </details>
+    <details class="hint"><summary>Hint 3 · Still stuck after 20 minutes?</summary>
+      <p>Compare your code with <code>checkpoints/step1-script.js</code>, or Step 1 in <code>CodeAlong_Guide.md</code>. Find the difference, then fix <b>your</b> code; don't copy the file.</p>
+    </details>
+    <div class="done-row"><input type="checkbox" id="done-p1" data-done="p1"><label for="done-p1">Task 1 works</label></div>
+  </section>
+
+  <!-- ===================== TASK 2 ===================== -->
+  <section class="lesson" id="task2">
+    <div class="lesson-head">
+      <span class="lesson-num">TASK 2 · 8 POINTS</span>
+      <h2>Search and show the results as cards</h2>
+      <div class="lesson-meta"><span>About 40 min</span><span>Under <code>// STEP 2</code></span></div>
+    </div>
+    <div class="block">
+      <div class="block-label">Do this</div>
+      <ol>
+        <li>Delete the Task 1 code (it runs on every save and uses up requests).</li>
+        <li>Write <code>renderResults(items)</code>: clear <code>#results</code>, then add one <code>&lt;button class="card"&gt;</code> per show with the poster, title, years, genres, and rating.</li>
+        <li>Write <code>async function searchShows(query)</code>: fetch <code>searchURL(query)</code>, read the JSON, and pass it to <code>renderResults</code>.</li>
+        <li>Listen for the form's <code>submit</code>: stop the page reload, read and trim the input, ignore empty input, call <code>searchShows</code>.</li>
+      </ol>
+    </div>
+    <div class="block">
+      <div class="block-label">Done when</div>
+      <ul class="checks">
+        <li>Searching <code>sample</code> shows 6 cards; each new search replaces the old cards</li>
+        <li>Each card shows poster, title, years (e.g. 2008–2013), genres, and <code>★ rating</code> or "Not rated yet"</li>
+        <li>Each card has <code>data-id</code> set to the show's <code>id</code> (check in the Elements tab)</li>
+        <li>Searching with an empty box does nothing</li>
+      </ul>
+    </div>
+    <details class="hint"><summary>Hint 1 · The idea</summary>
+      <p>Each item in the array is <code>{ score, show }</code>, so start the loop with <code>const show = item.show;</code>. Use the given helpers: <code>el(tag, className, text)</code>, <code>createPoster(show)</code>, <code>yearRange(show)</code>. <code>show.genres</code> is an array, so use <code>.join(", ")</code>. <code>show.rating.average</code> can be <code>null</code>.</p>
+    </details>
+    <details class="hint"><summary>Hint 2 · Fill in the blanks</summary>
+<pre class="code">function renderResults(items) {
+  results.innerHTML = "";
+  items.forEach((item) => {
+    const show = ____;
+    const card = el("button", "card");
+    card.type = "button";
+    card.dataset.id = ____;
+
+    const rating = show.rating.average;
+    card.append(
+      createPoster(show),
+      el("span", "title", ____),
+      el("span", "year", yearRange(show)),
+      el("span", "genres", show.genres.____(", ")),
+      el("span", "rating", rating ? `★ ${rating}` : "Not rated yet")
+    );
+    results.appendChild(card);
+  });
+}
+
+form.addEventListener("submit", (event) => {
+  event.____();
+  const query = input.value.____();
+  if (query === "") return;
+  searchShows(query);
+});</pre>
+    </details>
+    <details class="hint"><summary>Hint 3 · Still stuck after 20 minutes?</summary>
+      <p>Compare with <code>checkpoints/step2-script.js</code> or Step 2 in the guide.</p>
+    </details>
+    <div class="note"><p><strong>Before Task 3:</strong> search for a title that doesn't exist (sample: <code>superman</code>). What happens in sample mode? What happens in live mode? Write it down; you'll need it in your reflection.</p></div>
+    <div class="done-row"><input type="checkbox" id="done-p2" data-done="p2"><label for="done-p2">Task 2 works</label></div>
+  </section>
+
+  <!-- ===================== TASK 3 ===================== -->
+  <section class="lesson" id="task3">
+    <div class="lesson-head">
+      <span class="lesson-num">TASK 3 · 10 POINTS</span>
+      <h2>getJSON(): handle every way a request can fail</h2>
+      <div class="lesson-meta"><span>About 45 min</span><span>Under <code>// STEP 3</code></span></div>
+    </div>
+    <div class="block">
+      <div class="block-label">Do this</div>
+      <p>Write <code>async function getJSON(url)</code> that returns the parsed JSON, or <b>throws an Error with a message a user can understand</b>. Then rewrite <code>searchShows</code> to use it inside <code>try</code>/<code>catch</code>, with a loading message and an error message from <code>setStatus</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Situation</th><th>What fetch does</th><th>Your code must…</th></tr>
+          <tr><td>No internet</td><td>rejects</td><td>catch it and throw "Can't reach TVmaze…"</td></tr>
+          <tr><td>HTTP 429</td><td>resolves</td><td>throw "Too many requests…wait 10 seconds"</td></tr>
+          <tr><td>HTTP 404 (or any non-ok status)</td><td>resolves</td><td>throw a clear message (in sample mode: list the sample searches)</td></tr>
+          <tr><td>No shows match: <code>[]</code></td><td>resolves, status 200</td><td>show "No shows found…" instead of an empty page</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="block">
+      <div class="block-label">Done when</div>
+      <ul class="checks">
+        <li>While searching, the status shows a spinner and "Searching for …"</li>
+        <li>After a search: "6 shows found for …" (and "1 show found", not "1 shows")</li>
+        <li>A search with no match shows a red message, never a blank page or a Console error</li>
+        <li>Live mode with Wi-Fi turned off shows "Can't reach TVmaze…"</li>
+      </ul>
+    </div>
+    <details class="hint"><summary>Hint 1 · The idea</summary>
+      <p><code>fetch</code> only rejects when there's no answer at all, so put <code>try</code>/<code>catch</code> around <code>await fetch(url)</code>. For everything else, check <code>response.status</code> and <code>response.ok</code> and <code>throw new Error("…")</code>. In <code>searchShows</code>, <code>catch (error)</code> and show <code>error.message</code>. The empty array is checked in <code>searchShows</code>, not in <code>getJSON</code>.</p>
+    </details>
+    <details class="hint"><summary>Hint 2 · Fill in the blanks</summary>
+<pre class="code">async function getJSON(url) {
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (networkError) {
+    throw new Error("Can't reach TVmaze. Check your internet, or use sample mode.");
+  }
+  if (response.status === ____) {
+    throw new Error("Too many requests (429). Wait 10 seconds and try again.");
+  }
+  if (!response.____) {
+    throw new Error(`Request failed (HTTP ${response.status}).`);
+  }
+  return response.json();
+}
+
+async function searchShows(query) {
+  setStatus(`Searching for "${query}"…`, "____");
+  results.innerHTML = "";
+  ____ {
+    const data = await getJSON(searchURL(query));
+    if (data.length === 0) {
+      setStatus(`No shows found for "${query}".`, "error");
+      return;
+    }
+    renderResults(data);
+    setStatus(/* "6 shows found…" or "1 show found…" */);
+  } ____ (error) {
+    setStatus(error.message, "error");
+  }
+}</pre>
+    </details>
+    <details class="hint"><summary>Hint 3 · Still stuck after 20 minutes?</summary>
+      <p>Compare with <code>checkpoints/step3-script.js</code> or Step 3 in the guide.</p>
+    </details>
+    <div class="done-row"><input type="checkbox" id="done-p3" data-done="p3"><label for="done-p3">Task 3 works</label></div>
+  </section>
+
+  <!-- ===================== TASK 4 ===================== -->
+  <section class="lesson" id="task4">
+    <div class="lesson-head">
+      <span class="lesson-num">TASK 4 · 6 POINTS</span>
+      <h2>Click a card to see the show's details</h2>
+      <div class="lesson-meta"><span>About 40 min</span><span>Under <code>// STEP 4</code></span></div>
+    </div>
+    <div class="block">
+      <div class="block-label">Do this</div>
+      <ol>
+        <li>Add <b>one</b> click listener on <code>#results</code> (not one per card). Find the clicked card with <code>event.target.closest(".card")</code> and call <code>showDetails(card.dataset.id)</code>.</li>
+        <li>Write <code>async function showDetails(id)</code>: show "Loading details…" in <code>#detailsBody</code>, open the pop-up with <code>dialog.showModal()</code>, then fetch <code>showURL(id)</code> with <code>getJSON</code>. On error, show the message in the pop-up.</li>
+        <li>Write <code>renderDetails(show)</code>: the large poster (<code>createPoster(show, "original")</code>), name, a line with years · network · genres · runtime, the rating, the summary, and a "View on TVmaze" link (<code>show.url</code>).</li>
+      </ol>
+    </div>
+    <div class="block">
+      <div class="block-label">Done when</div>
+      <ul class="checks">
+        <li>Clicking any card, even after a new search, opens its details</li>
+        <li>The summary is shown with <code>stripTags(show.summary)</code> and <code>textContent</code>, <b>never</b> <code>innerHTML</code></li>
+        <li>Shows with a <code>null</code> network, runtime, or rating still display without errors (try Stranger Things: its <code>runtime</code> is <code>null</code>, so use <code>averageRuntime</code>)</li>
+        <li>The pop-up closes with ×, Esc, or a click outside it</li>
+      </ul>
+    </div>
+    <details class="hint"><summary>Hint 1 · The idea</summary>
+      <p>Clicks <b>bubble up</b> from the card to <code>#results</code>, so one listener on the parent can handle every card, even cards created later. Network name: <code>show.network ? show.network.name : …</code>; streaming shows have <code>show.webChannel</code> instead. Runtime: <code>show.runtime || show.averageRuntime</code>.</p>
+    </details>
+    <details class="hint"><summary>Hint 2 · Fill in the blanks</summary>
+<pre class="code">results.addEventListener("click", (event) => {
+  const card = event.target.____(".card");
+  if (card) showDetails(card.dataset.____);
+});
+
+async function showDetails(id) {
+  detailsBody.replaceChildren(el("p", "status loading", "Loading details…"));
+  dialog.____();
+  try {
+    const show = await getJSON(____(id));
+    renderDetails(show);
+  } catch (error) {
+    detailsBody.replaceChildren(el("p", "status error", error.message));
+  }
+}</pre>
+    </details>
+    <details class="hint"><summary>Hint 3 · Still stuck after 20 minutes?</summary>
+      <p>Compare with <code>checkpoints/step4-script.js</code> or Step 4 in the guide.</p>
+    </details>
+    <div class="done-row"><input type="checkbox" id="done-p4" data-done="p4"><label for="done-p4">Task 4 works</label></div>
+  </section>
+
+  <!-- ===================== TASK 5 ===================== -->
+  <section class="lesson" id="task5">
+    <div class="lesson-head">
+      <span class="lesson-num">TASK 5 · 6 POINTS</span>
+      <h2>Promise.all: show, cast, and seasons at the same time</h2>
+      <div class="lesson-meta"><span>About 30 min</span><span>Under <code>// STEP 5</code></span></div>
+    </div>
+    <div class="block">
+      <div class="block-label">Do this</div>
+      <p>Change <code>showDetails</code> so it starts <b>three</b> requests together (<code>showURL</code>, <code>castURL</code>, <code>seasonsURL</code>) with <code>Promise.all</code>, and log how long they took. Change <code>renderDetails</code> to accept <code>(show, cast, seasons)</code> and add the number of seasons and up to 6 cast members ("Bryan Cranston as Walter White").</p>
+    </div>
+    <div class="block">
+      <div class="block-label">Done when</div>
+      <ul class="checks">
+        <li>The Network tab shows the three requests starting at the same moment (bars side by side in the Waterfall)</li>
+        <li>The Console logs "3 requests in … ms"</li>
+        <li>The pop-up shows "5 seasons" (or "1 season") and the cast list</li>
+        <li>If one of the three requests fails, the pop-up shows an error message</li>
+      </ul>
+    </div>
+    <details class="hint"><summary>Hint 1 · The idea</summary>
+      <p><code>Promise.all([p1, p2, p3])</code> waits for all three and gives back an array of results <b>in the same order</b>. Unpack it with array destructuring: <code>const [show, cast, seasons] = await Promise.all([...])</code>. The cast is an array of <code>{ person, character }</code>; use <code>cast.slice(0, 6)</code>.</p>
+    </details>
+    <details class="hint"><summary>Hint 2 · Fill in the blanks</summary>
+<pre class="code">const start = performance.now();
+const [show, cast, seasons] = await Promise.____([
+  getJSON(showURL(id)),
+  getJSON(____(id)),
+  getJSON(____(id)),
+]);
+console.log(`3 requests in ${Math.round(performance.now() - start)} ms`);
+renderDetails(show, cast, seasons);
+
+// inside renderDetails:
+cast.slice(0, 6).forEach((member) => {
+  const li = el("li", "", member.____.name + " ");
+  li.append(el("span", "", "as " + member.____.name));
+  list.append(li);
+});</pre>
+    </details>
+    <details class="hint"><summary>Hint 3 · Still stuck after 20 minutes?</summary>
+      <p>Compare with Step 5 in <code>CodeAlong_Guide.md</code>.</p>
+    </details>
+    <div class="done-row"><input type="checkbox" id="done-p5" data-done="p5"><label for="done-p5">Task 5 works</label></div>
+  </section>
+
+  <!-- ===================== EXTEND ===================== -->
+  <section class="lesson" id="extend">
+    <div class="lesson-head">
+      <span class="lesson-num">EXTEND · 10 POINTS</span>
+      <h2>Add one feature of your own</h2>
+      <div class="lesson-meta"><span>About 45 min</span><span>Pick <b>one</b></span></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Feature</th><th>It counts when…</th></tr>
+        <tr><td><b>A · Retry on 429</b></td><td><code>getJSON</code> waits 2 seconds with <code>await new Promise((r) =&gt; setTimeout(r, 2000))</code> and retries once before throwing. The status says "Busy, retrying…".</td></tr>
+        <tr><td><b>B · Search as you type</b></td><td>Searching starts 500 ms after the user <b>stops</b> typing (<code>setTimeout</code> + <code>clearTimeout</code> on the <code>input</code> event). Typing "friends" quickly sends one request, not seven (prove it with the Network tab).</td></tr>
+        <tr><td><b>C · Favorites</b></td><td>A ☆ button in the pop-up saves the show's <code>id</code> and <code>name</code> in <code>localStorage</code>. A "My favorites" list shows them and survives a page reload.</td></tr>
+        <tr><td><b>D · Sort by rating</b></td><td>A "Top rated first" button reorders the current cards from highest to lowest rating. Shows with no rating go last.</td></tr>
+        <tr><td><b>E · Season 1 episodes</b> (live mode)</td><td>The pop-up lists the episode names of season 1 using <code>https://api.tvmaze.com/seasons/{seasonId}/episodes</code> (each season object has an <code>id</code>).</td></tr>
+      </table>
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-p6" data-done="p6"><label for="done-p6">My extra feature works</label></div>
+  </section>
+
+  <!-- ===================== SUBMIT ===================== -->
+  <section class="lesson" id="submit">
+    <div class="lesson-head">
+      <span class="lesson-num">REFLECT &amp; SUBMIT · 5 POINTS + RUBRIC</span>
+      <h2>Reflect, then submit in Google Classroom</h2>
+    </div>
+    <div class="block">
+      <div class="block-label">Reflection (write 3–5 sentences for each)</div>
+      <ol>
+        <li>Before Task 3, what happened when you searched for a show that doesn't exist, in sample mode and in live mode? Why didn't <code>fetch</code> report an error?</li>
+        <li>Explain <code>Promise.all</code> in your own words. Why is it faster than three <code>await</code>s in a row, and when would you <b>not</b> use it?</li>
+        <li>Which bug took you the longest, and how did you find it (Console, Network tab, a classmate, an AI tool)?</li>
+      </ol>
+    </div>
+    <div class="block">
+      <div class="block-label">Turn in</div>
+      <ul class="checks">
+        <li>Link to your GitHub repository (folder with <code>index.html</code>, <code>script.js</code>, <code>config.js</code>, <code>data/</code>), pushed before the deadline</li>
+        <li>Screenshot 1: search results grid</li>
+        <li>Screenshot 2: details pop-up with cast and seasons</li>
+        <li>Screenshot 3: one of your error messages (no match, offline, or 429)</li>
+        <li>Your reflection, typed in the Classroom submission</li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="block-label">Rubric · 50 points</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Part</th><th>Full points</th><th>Partial</th><th>Pts</th></tr>
+          <tr><td>Task 1 · First request</td><td>Correct URL, two awaits, status and data logged</td><td>Data logged but missing status or wrong path</td><td>5</td></tr>
+          <tr><td>Task 2 · Search &amp; show</td><td>All card fields, data-id set, submit handled, empty input ignored</td><td>Cards show but fields missing or page reloads</td><td>8</td></tr>
+          <tr><td>Task 3 · getJSON</td><td>All four situations handled with readable messages; loading state; correct singular/plural</td><td>Some situations handled; others crash or show a blank page</td><td>10</td></tr>
+          <tr><td>Task 4 · Details</td><td>One delegated listener; null values handled; summary uses text only; pop-up closes</td><td>Works for some shows only, or uses innerHTML for the summary</td><td>6</td></tr>
+          <tr><td>Task 5 · Promise.all</td><td>Three parallel requests, timing logged, seasons + cast shown, error handled</td><td>Requests sent one after another, or cast/seasons missing</td><td>6</td></tr>
+          <tr><td>Extend</td><td>Feature fully meets its "counts when" description</td><td>Feature partly works</td><td>10</td></tr>
+          <tr><td>Reflection</td><td>All three questions answered clearly in your own words</td><td>Short or missing answers</td><td>5</td></tr>
+          <tr><td colspan="3"><b>Comments in your own words above every function you wrote</b>: missing comments lose up to 5 points across the tasks.</td><td></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="done-row"><input type="checkbox" id="done-p7" data-done="p7"><label for="done-p7">I submitted in Google Classroom</label></div>
+  </section>
+
+  <footer>WS1 · Web Systems and Technologies · BSIT · College of Engineering and Computational Sciences, Partido State University. TV data from <a href="https://www.tvmaze.com/" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA 4.0). Your progress checkmarks are saved in this browser only.</footer>
+</div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  // ---------- IDE-style code blocks (VS Code Dark+ colours) ----------
+  const KW_CTRL = new Set(["if", "else", "return", "try", "catch", "finally", "for", "of", "in", "while", "await", "throw", "break", "continue", "switch", "case", "default", "do"]);
+  const KW_DECL = new Set(["const", "let", "var", "function", "async", "new", "class", "typeof", "instanceof", "this", "true", "false", "null", "undefined", "void", "delete"]);
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function tok(cls, text) { return '<span class="tk-' + cls + '">' + esc(text) + "</span>"; }
+  function highlightLine(line) {
+    let out = "", i = 0;
+    while (i < line.length) {
+      const ch = line[i];
+      if (ch === "/" && line[i + 1] === "/") { out += tok("c", line.slice(i)); break; }
+      if (ch === '"' || ch === "'" || ch === "`") {
+        let j = i + 1;
+        while (j < line.length && line[j] !== ch) { if (line[j] === "\\") j++; j++; }
+        out += tok("s", line.slice(i, j + 1)); i = j + 1; continue;
+      }
+      if (/[0-9]/.test(ch) && !/[A-Za-z_$0-9]/.test(line[i - 1] || "")) {
+        let j = i; while (j < line.length && /[0-9._]/.test(line[j])) j++;
+        out += tok("n", line.slice(i, j)); i = j; continue;
+      }
+      if (/[A-Za-z_$]/.test(ch)) {
+        let j = i; while (j < line.length && /[A-Za-z0-9_$]/.test(line[j])) j++;
+        const word = line.slice(i, j);
+        let k = j; while (line[k] === " ") k++;
+        const prev = line[i - 1];
+        let cls;
+        if (KW_CTRL.has(word)) cls = "kc";
+        else if (KW_DECL.has(word)) cls = "k";
+        else if (line[k] === "(") cls = "f";
+        else if (/^[A-Z]/.test(word)) cls = "t";
+        else cls = "v";
+        if (prev === "." && cls !== "f") cls = "v";
+        out += tok(cls, word); i = j; continue;
+      }
+      if (ch === "=" && line[i + 1] === ">") { out += tok("k", "=>"); i += 2; continue; }
+      out += esc(ch); i++;
+    }
+    return '<span class="line">' + out + "</span>";
+  }
+  function copyText(text, btn) {
+    const done = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy"; }, 1500); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { btn.textContent = "Select & copy"; });
+    } catch (e) { btn.textContent = "Select & copy"; }
+  }
+  document.querySelectorAll("pre.code").forEach(function (pre) {
+    const raw = pre.textContent.replace(/\n$/, "");
+    pre.innerHTML = raw.split("\n").map(highlightLine).join("");
+    if (pre.closest(".demo")) return;          // run boxes already have their own bar
+    const ide = document.createElement("div");
+    ide.className = "ide";
+    const bar = document.createElement("div");
+    bar.className = "ide-bar";
+    bar.innerHTML = '<span class="ide-dots" aria-hidden="true"><span></span><span></span><span></span></span>' +
+      '<span class="ide-tab"><span class="js">JS</span>' + esc(pre.dataset.file || "script.js") + "</span>";
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "ide-copy"; btn.textContent = "Copy";
+    btn.addEventListener("click", function () { copyText(raw, btn); });
+    bar.appendChild(btn);
+    pre.parentNode.insertBefore(ide, pre);
+    ide.append(bar, pre);
+  });
+
+  // ---------- progress (this browser only) ----------
+  const KEY = "ws1-week13-tv-assignment";
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+  const boxes = document.querySelectorAll("[data-done]");
+  function render() {
+    let n = 0;
+    boxes.forEach(function (cb) {
+      const id = cb.dataset.done;
+      cb.checked = !!state[id];
+      if (state[id]) n++;
+      const tick = document.querySelector('.nav a[data-lesson="' + id + '"] .tick');
+      if (tick) tick.hidden = !state[id];
+    });
+    document.getElementById("progressFill").style.width = (n / boxes.length * 100) + "%";
+    document.getElementById("progressLabel").textContent = n + " of " + boxes.length + " parts done";
+  }
+  boxes.forEach(function (cb) {
+    cb.addEventListener("change", function () {
+      state[cb.dataset.done] = cb.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* progress lasts this visit only */ }
+      render();
+    });
+  });
+  render();
+})();
+</script>
+</body></html>
